@@ -1,124 +1,115 @@
 \section{基于GRU的燃煤机组汽轮机系统状态监测方法}
 \label{sec:gru_monitoring}
 
-汽轮机故障诊断的前提是能够准确描述设备在给定运行条件下的正常响应。对于长期参与深度调峰的燃煤机组，同一测点在不同负荷、主蒸汽边界及阀门状态下可能具有明显不同的正常取值范围，因此仅依据参数绝对值或固定阈值难以区分正常工况迁移与设备状态异常。为此，本文首先面向燃煤机组汽轮机系统构建设备级健康状态模型，利用正常运行数据学习运行边界、操作变量与设备状态之间的动态映射关系，并将实际观测值与健康模型预测值之间的偏差作为后续故障诊断的状态表征。本节给出汽轮机系统统一的设备级建模方法，并以超高压缸（Very High Pressure Cylinder, VHP）作为代表性对象，对输入输出定义、GRU网络结构、训练过程及状态预测结果进行详细说明。
+\subsection{引言}
 
-\subsection{燃煤机组汽轮机系统及设备级建模对象}
-\label{subsec:turbine_system_modeling}
+燃煤机组在深度调峰及宽负荷运行过程中，汽轮机主蒸汽参数、再热蒸汽参数、阀门开度以及负荷水平持续变化，各级汽缸及其相邻热力系统的压力、温度和流量状态也随运行工况发生相应变化。若仅依据固定阈值或单一设计工况判断设备运行状态，容易将正常工况迁移与设备异常相混淆。因此，有必要利用机组正常运行数据建立能够描述运行边界与设备状态参数之间非线性关系的状态监测模型，为后续故障诊断提供正常运行参考。
 
-本文研究对象为某1000~MW超超临界、二次再热、单轴、四缸四排汽凝汽式汽轮机。其主通流热力过程可概括为：锅炉产生的主蒸汽进入超高压缸做功，VHP排汽经一次再热系统（RH1）加热后进入高压缸（HP）；HP排汽进一步经过二次再热系统（RH2）后进入中压缸（IP），随后蒸汽进入低压缸（LP）继续膨胀做功，最终排入凝汽器。与此同时，各级汽缸通过抽汽支路与高、低压加热器及给水系统相连，凝汽器及冷端运行状态又通过背压等参数影响低压缸运行边界。因此，汽轮机并非若干相互独立测点的集合，而是由主蒸汽、汽缸、再热、抽汽回热及冷端系统共同组成的强耦合热力网络。已有研究表明，汽轮机状态监测模型需要同时考虑运行边界变化及系统动态响应特性\cite{Dettori2017MonitoringModels,Zhang2018AllCondition}。
+本文针对燃煤机组汽轮机系统的多设备、多边界及强耦合特点，采用按设备划分的状态监测建模方式，根据各设备的直接热力边界、运行条件及本体状态参数构建数据驱动模型。考虑汽轮机热力过程具有明显的时序特性，选用门控循环单元（Gated Recurrent Unit, GRU）建立状态监测模型，并通过ANN、TCN及iTransformer等模型进行对比分析。为说明模型构建过程及其工程应用效果，本文选取超高压缸（Very High Pressure Cylinder, VHP）作为典型对象，给出测点选择、模型参数设置及状态监测结果。
 
-% [图2-1占位] 燃煤机组汽轮机系统及设备级健康状态建模对象示意图
+\subsection{燃煤机组汽轮机系统及状态监测建模}
+\label{subsec:turbine_monitoring_framework}
+
+\subsubsection{汽轮机系统结构及主要参数}
+
+本文研究对象为某大型超超临界二次再热燃煤机组汽轮机系统。其主通流过程由超高压缸（VHP）、一次再热系统（RH1）、高压缸（HP）、二次再热系统（RH2）、中压缸（IP）、低压缸（LP）及凝汽器等设备构成。主蒸汽进入VHP膨胀做功后进入一次再热系统，经过再热后的蒸汽进入HP继续做功；HP排汽经二次再热后进入IP，随后进入LP继续膨胀并最终排入凝汽器。与此同时，各级汽缸通过抽汽支路与高、低压加热器及给水系统相连，构成汽轮机本体、再热、回热及冷端系统相互耦合的热力过程。类似的大型汽轮机系统建模研究表明，运行边界及设备间热力联系是描述汽轮机全工况运行特性的重要基础\cite{Zhang2018AllCondition,Dettori2017MonitoringModels}。
+
+% [图2-1占位] 燃煤机组汽轮机系统及设备级状态监测对象
 \begin{figure}[htbp]
     \centering
     \fbox{\parbox[c][5.0cm][c]{0.92\textwidth}{\centering
-    图2-1占位：燃煤机组汽轮机系统及设备级健康状态建模对象\\[4pt]
-    主蒸汽 $\rightarrow$ VHP $\rightarrow$ RH1 $\rightarrow$ HP $\rightarrow$ RH2 $\rightarrow$ IP $\rightarrow$ LP $\rightarrow$ 凝汽器；\\
-    同时标注各级抽汽至回热系统的支路，以及各设备的 $U+B\rightarrow Y$ 建模边界。}}
-    \caption{燃煤机组汽轮机系统及设备级健康状态建模对象示意图}
+    图2-1占位：燃煤机组汽轮机系统及设备级状态监测对象\\[5pt]
+    主蒸汽 $\rightarrow$ VHP $\rightarrow$ RH1 $\rightarrow$ HP $\rightarrow$ RH2 $\rightarrow$ IP $\rightarrow$ LP $\rightarrow$ 凝汽器\\
+    同时表示各级抽汽至回热系统的主要支路及设备建模边界。}}
+    \caption{燃煤机组汽轮机系统及设备级状态监测对象}
     \label{fig:turbine_system_modeling}
 \end{figure}
 
-针对上述热力拓扑，本文采用“按设备划分、按物理边界建模”的状态监测策略。对于任一设备或热力子系统，其输入由上游直接热力边界、外部运行条件及本级可控操作量构成，输出则由设备本体状态以及与下游设备连接的热力接口参数构成。各设备模型独立读取真实DCS测量值，不使用上一级模型的预测值作为下一级模型输入，从而避免多级预测误差沿系统链路累积传播。该方法可统一应用于VHP、RH1、HP、RH2、IP、LP及凝汽器等对象；考虑篇幅与实验展示的完整性，本文选取测点较为完整的VHP作为代表性对象详细给出模型构建及验证过程，其他设备遵循相同的物理边界定义与建模原则。
+汽轮机系统不同设备具有不同的直接边界和状态参数。对于汽缸类设备，上游蒸汽温度、压力、流量以及调节阀状态等参数决定其入口运行条件，叶片级压力、排汽温度、抽汽状态及缸体温度等参数反映设备内部及出口运行状态；对于再热、回热和冷端设备，其入口介质参数、流量及控制量同样构成相应的设备边界。基于上述物理关系，本文将汽轮机系统划分为若干设备级建模对象，使状态监测模型能够围绕明确的热力边界学习正常运行规律，而不是直接将全系统测点作为无差别特征输入。
 
-\subsection{面向汽轮机系统的设备级健康状态建模方法}
-\label{subsec:device_health_model}
+\subsubsection{设备级状态监测建模方法}
 
-设第 $d$ 个汽轮机设备在时刻 $t$ 的直接热力边界变量为 $\mathbf{B}^{(d)}_t$，本级操作及运行条件为 $\mathbf{U}^{(d)}_t$，需要监测的设备状态变量为 $\mathbf{Y}^{(d)}_t$。将边界和操作条件组合为
+设汽轮机系统中第$d$个设备的运行输入为$\mathbf{X}^{(d)}$，状态输出为$\mathbf{Y}^{(d)}$。其中，$\mathbf{X}^{(d)}$由设备直接热力边界及本级运行、操作变量组成，$\mathbf{Y}^{(d)}$由设备本体状态参数以及与相邻系统相连的关键接口参数组成。设备级状态监测模型可以表示为
 \begin{equation}
-    \mathbf{X}^{(d)}_t=
-    \left[\mathbf{B}^{(d)}_t,\mathbf{U}^{(d)}_t\right],
-    \label{eq:device_input}
-\end{equation}
-则设备级健康状态模型的目标是在正常运行数据上学习条件映射
-\begin{equation}
-    \hat{\mathbf{Y}}^{(d)}_t=
-    f_{\boldsymbol{\theta}_d}\left(
-    \mathbf{X}^{(d)}_{t-L+1:t}
-    \right),
+    \hat{\mathbf{Y}}^{(d)}=
+    f_{\boldsymbol{\theta}_d}\left(\mathbf{X}^{(d)}\right),
     \label{eq:device_health_mapping}
 \end{equation}
-其中，$L$ 为历史时间窗口长度，$f_{\boldsymbol{\theta}_d}(\cdot)$ 表示参数为 $\boldsymbol{\theta}_d$ 的数据驱动健康模型，$\hat{\mathbf{Y}}^{(d)}_t$ 为当前时刻的健康状态估计值。需要指出的是，式(\ref{eq:device_health_mapping})并非进行未来时刻预测，而是利用当前及历史运行边界估计当前设备在正常状态下应呈现的热力响应。该设计使模型能够在负荷及蒸汽边界变化时动态更新正常参考状态，从而为后续异常偏离计算提供条件化健康基准。类似的正常值建模及时间序列状态监测思想已被用于汽轮机性能监测和退化预警\cite{Cao2016LastStageNormalValue,Li2021LSTMStageWarning,Chen2023AdaptiveTransfer}。
+式中，$f_{\boldsymbol{\theta}_d}(\cdot)$表示参数为$\boldsymbol{\theta}_d$的数据驱动模型，$\hat{\mathbf{Y}}^{(d)}$表示模型输出的设备状态参数。对于具有动态特性的设备，模型输入进一步由连续运行序列构成，以描述负荷变化及热力惯性对设备状态的影响。已有研究采用正常值模型和时序神经网络对汽轮机性能及运行状态进行建模，说明利用正常运行数据建立状态参考具有良好的工程可行性\cite{Cao2016LastStageNormalValue,Li2021LSTMStageWarning,Chen2023AdaptiveTransfer}。
 
-由于汽轮机热力参数包含MPa、$^{\circ}$C、MW及t/h等不同量纲，本文仅使用训练数据对输入和输出分别进行标准化。对任一变量 $x_j$，标准化过程表示为
-\begin{equation}
-    x'_{j,t}=\frac{x_{j,t}-\mu^{\mathrm{tr}}_{j}}{\sigma^{\mathrm{tr}}_{j}},
-    \label{eq:standardization}
-\end{equation}
-其中，$\mu^{\mathrm{tr}}_{j}$ 与 $\sigma^{\mathrm{tr}}_{j}$ 分别为训练数据中该变量的均值和标准差。测试数据不参与标准化参数拟合，以避免测试信息泄漏。模型训练完成后，将预测输出反标准化至原物理量纲，再分别计算各测点的 $R^2$、RMSE及MAE。由于不同输出变量的RMSE和MAE具有不同物理单位，本文不对跨单位RMSE或MAE直接求宏平均，而以逐测点指标和无量纲宏平均 $R^2$ 评价总体建模性能。
+不同设备按照相同原则确定自身输入与输出，并分别建立状态监测模型。该建模方式可用于VHP、RH1、HP、RH2、IP、LP及凝汽器等汽轮机关键设备和热力子系统。考虑篇幅限制，后文选取测点配置较完整且能够反映主通流、抽汽及再热接口状态的VHP作为典型对象，对模型构建及监测效果进行详细分析。
 
-对于由 $N$ 个训练样本和 $M$ 个候选状态输出组成的数据集，模型采用标准化空间中的均方误差作为基本训练目标：
-\begin{equation}
-    \mathcal{L}_{\mathrm{MSE}}=
-    \frac{1}{NM}
-    \sum_{n=1}^{N}\sum_{m=1}^{M}
-    \left(y'_{n,m}-\hat{y}'_{n,m}\right)^2.
-    \label{eq:mse_loss}
-\end{equation}
-该目标使不同量纲状态变量在统一标准化空间中参与模型训练，而最终结果分析仍返回真实物理尺度。
-
-\subsection{基于GRU的动态状态预测模型}
+\subsection{GRU模型}
 \label{subsec:gru_model}
 
-汽轮机温度、压力及抽汽状态不仅由当前边界决定，还与此前一段时间的负荷及蒸汽参数变化相关。为提取这种动态依赖关系，本文采用门控循环单元（Gated Recurrent Unit, GRU）构建设备级健康状态模型。GRU通过更新门与重置门调节历史信息的保留与遗忘，相较于传统RNN能够缓解长序列训练中的梯度传播问题，同时保持相对紧凑的参数规模\cite{Cho2014GRU}。
+循环神经网络（Recurrent Neural Network, RNN）能够通过隐藏状态传递历史信息，适用于具有时间相关性的动态过程建模，但传统RNN在较长序列训练过程中容易出现梯度消失或梯度爆炸问题。GRU通过引入更新门和重置门对历史状态信息进行选择性保留，在保持循环网络时序建模能力的同时简化了网络结构\cite{Cho2014GRU}。
 
-对时刻 $t$ 的输入向量 $\mathbf{x}_t$ 和上一时刻隐藏状态 $\mathbf{h}_{t-1}$，GRU的重置门和更新门分别为
+对于时刻$t$的输入向量$\mathbf{x}_t$与上一时刻隐藏状态$\mathbf{h}_{t-1}$，GRU的重置门$\mathbf{r}_t$和更新门$\mathbf{z}_t$分别表示为
 \begin{align}
-    \mathbf{r}_t &= \sigma\left(
-    \mathbf{W}_r\mathbf{x}_t+\mathbf{U}_r\mathbf{h}_{t-1}+\mathbf{b}_r
-    \right), \\
-    \mathbf{z}_t &= \sigma\left(
-    \mathbf{W}_z\mathbf{x}_t+\mathbf{U}_z\mathbf{h}_{t-1}+\mathbf{b}_z
-    \right),
+    \mathbf{r}_t &= \sigma\left(\mathbf{W}_r\mathbf{x}_t+\mathbf{U}_r\mathbf{h}_{t-1}+\mathbf{b}_r\right),\\
+    \mathbf{z}_t &= \sigma\left(\mathbf{W}_z\mathbf{x}_t+\mathbf{U}_z\mathbf{h}_{t-1}+\mathbf{b}_z\right),
 \end{align}
-候选隐藏状态及最终隐藏状态为
+候选隐藏状态和当前隐藏状态分别为
 \begin{align}
-    \tilde{\mathbf{h}}_t &= \tanh\left[
-    \mathbf{W}_h\mathbf{x}_t+
-    \mathbf{U}_h\left(\mathbf{r}_t\odot\mathbf{h}_{t-1}\right)+\mathbf{b}_h
-    \right], \\
-    \mathbf{h}_t &=
-    \left(1-\mathbf{z}_t\right)\odot\mathbf{h}_{t-1}
-    +\mathbf{z}_t\odot\tilde{\mathbf{h}}_t,
+    \tilde{\mathbf{h}}_t &= \tanh\left[\mathbf{W}_h\mathbf{x}_t+\mathbf{U}_h\left(\mathbf{r}_t\odot\mathbf{h}_{t-1}\right)+\mathbf{b}_h\right],\\
+    \mathbf{h}_t &= (1-\mathbf{z}_t)\odot\mathbf{h}_{t-1}+\mathbf{z}_t\odot\tilde{\mathbf{h}}_t,
     \label{eq:gru_hidden}
 \end{align}
-其中，$\sigma(\cdot)$ 为Sigmoid函数，$\odot$ 表示Hadamard逐元素乘积。经过连续 $L$ 个时刻的信息递推后，取最后时刻隐藏状态作为时间窗口的动态表征，并通过归一化、Dropout及线性映射得到设备状态输出。
+式中，$\sigma(\cdot)$为Sigmoid函数，$\odot$表示Hadamard乘积。更新门用于控制历史状态的保留程度，重置门用于控制上一时刻信息对候选状态的影响。经过连续序列的信息递推后，GRU隐藏状态能够表征设备运行参数在时间维度上的动态变化特征。
 
-本文VHP代表性模型采用24~min历史窗口和16维输入，每个样本张量尺寸为 $24\times16$。GRU隐藏维度设置为32，仅使用单层循环结构；最后时刻隐藏状态依次经过LayerNorm、Dropout(0.05)与线性输出层，直接预测27个候选VHP状态参数。模型结构可写为
-\begin{equation}
-    24\times16
-    \rightarrow \mathrm{GRU}(32)
-    \rightarrow \mathrm{LayerNorm}
-    \rightarrow \mathrm{Dropout}(0.05)
-    \rightarrow \mathrm{Linear}(27).
-    \label{eq:gru_architecture}
-\end{equation}
-模型可训练参数量为5755。该轻量结构的目的并非追求深层网络复杂度，而是在保留24~min动态信息的同时降低健康模型自身的过拟合风险，使其更适合作为后续长期在线残差生成器。
-
-% [图2-2占位] GRU网络结构图
+% [图2-2占位] GRU单元及状态监测模型结构
 \begin{figure}[htbp]
     \centering
     \fbox{\parbox[c][4.8cm][c]{0.90\textwidth}{\centering
-    图2-2占位：GRU健康状态模型网络结构\\[6pt]
-    $24\times16$运行边界窗口 $\rightarrow$ GRU(32) $\rightarrow$ LayerNorm $\rightarrow$ Dropout(0.05) $\rightarrow$ 27维候选健康状态\\
-    建议图中同时标注隐藏状态递推、最终hidden提取和参数量5755。}}
-    \caption{基于GRU的汽轮机设备级健康状态预测模型结构}
+    图2-2占位：GRU单元及汽轮机设备状态监测模型结构\\[6pt]
+    连续运行参数 $\rightarrow$ GRU隐藏状态 $\rightarrow$ LayerNorm $\rightarrow$ Dropout $\rightarrow$ 状态参数输出}}
+    \caption{基于GRU的汽轮机设备状态监测模型结构}
     \label{fig:gru_architecture}
 \end{figure}
 
-模型参数选择仅使用训练月内部数据完成。具体而言，首先按照时间顺序将训练月前80\%数据作为拟合集、后20\%作为验证集，在该阶段选择最佳训练轮数；优化器采用AdamW，初始学习率为$1\times10^{-3}$，权重衰减为$1\times10^{-4}$，批大小为4096，并采用ReduceLROnPlateau根据验证损失动态降低学习率。训练过程中将梯度范数裁剪至5.0，最大训练轮数设置为300，并依据验证集损失执行早停。完成轮数选择后，重新使用完整训练月拟合标准化器和GRU模型，并按照所选最佳轮数完成最终训练。VHP模型的最佳轮数为161，对应验证集标准化MSE为0.0575。
+\subsection{基于GRU的汽轮机系统状态监测模型构建}
+\label{subsec:gru_monitoring_model}
 
-\subsection{以超高压缸为例的健康状态模型构建}
+汽轮机不同状态参数具有MPa、$^{\circ}$C、MW及t/h等不同量纲，为避免变量尺度差异对网络训练产生影响，本文采用标准化方法对输入和输出数据进行处理。对变量$x_j$，其标准化形式为
+\begin{equation}
+    x'_{j}=\frac{x_j-\mu_j}{\sigma_j},
+    \label{eq:standardization}
+\end{equation}
+式中，$\mu_j$和$\sigma_j$分别表示训练数据中该变量的均值和标准差。标准化参数仅由训练数据计算，并应用于后续验证和测试数据。
+
+模型采用均方误差作为训练目标函数：
+\begin{equation}
+    \mathcal{L}_{\mathrm{MSE}}=
+    \frac{1}{NM}\sum_{n=1}^{N}\sum_{m=1}^{M}
+    \left(y'_{n,m}-\hat{y}'_{n,m}\right)^2,
+    \label{eq:mse_loss}
+\end{equation}
+式中，$N$为样本数，$M$为状态输出数量，$y'_{n,m}$和$\hat y'_{n,m}$分别表示第$n$个样本中第$m$个状态参数的标准化实测值和模型输出值。网络训练完成后，将模型输出恢复至原物理量纲，并采用决定系数$R^2$、均方根误差RMSE及平均绝对误差MAE评价模型性能。
+
+本文所采用的GRU状态监测网络由GRU层、LayerNorm层、Dropout层和线性输出层组成。GRU层提取连续运行数据中的动态特征，LayerNorm用于稳定隐藏特征分布，Dropout用于降低模型过拟合风险，最后通过线性层输出设备状态参数。具体网络规模和训练参数根据设备输入输出维数进行设置，后文以VHP模型为例给出详细参数。
+
+\subsection{算例分析}
 \label{subsec:vhp_case}
 
-\subsubsection{VHP物理边界及输入输出变量}
-\label{subsubsec:vhp_io}
+\subsubsection{研究对象}
 
-超高压缸位于主蒸汽进入汽轮机后的首级做功段，其运行状态直接受A/B侧主蒸汽温压、主蒸汽流量、负荷水平及本级调节阀状态影响；其输出则同时反映在缸内叶片级压力、VHP排汽状态、一级抽汽以及VHP至一次再热系统的冷再热接口上。按照第\ref{subsec:device_health_model}节所述设备级建模原则，本文选取16个变量作为VHP模型输入，具体包括12个A/B侧主蒸汽温压冗余测点、2个VHP调节阀实际位置、机组有功负荷和主蒸汽流量。正常运行时汽轮机转速接近额定值，因此转速仅用于运行状态筛选而不作为模型输入；凝汽器压力及高压旁路变量不进入本文VHP基线模型。
+为验证所构建GRU状态监测模型的有效性，本文选取VHP作为典型研究对象。VHP处于汽轮机主蒸汽通流的首级做功段，其运行状态受A/B侧主蒸汽温度和压力、主蒸汽流量、机组负荷以及本级调节阀状态等因素影响；状态输出涉及缸内叶片级压力、排汽状态、一级抽汽状态、VHP至一次再热系统接口状态以及部分缸体温度等参数。上述测点能够从主通流、抽汽和缸体热状态等多个角度描述VHP运行特性。
+
+% [图2-3占位] 使用最终VHP论文风格设备+测点图
+\begin{figure}[htbp]
+    \centering
+    \fbox{\parbox[c][5.2cm][c]{0.92\textwidth}{\centering
+    图2-3占位：超高压缸结构、介质流向及状态监测测点配置\\[5pt]
+    使用最终论文风格VHP设备原理与测点图。}}
+    \caption{超高压缸结构及状态监测测点配置}
+    \label{fig:vhp_io}
+\end{figure}
+
+按照前述设备级建模原则，VHP模型选取16个运行变量作为输入，包括12个A/B侧主蒸汽温压测点、2个VHP调节阀实际位置、机组有功负荷和主蒸汽流量，具体见表\ref{tab:vhp_inputs}。汽轮机转速在正常运行阶段基本保持额定值，因此仅用于运行状态筛选，不作为模型输入。
 
 \begin{table}[htbp]
 \centering
-\caption{VHP健康状态模型输入变量}
+\caption{VHP状态监测模型输入变量}
 \label{tab:vhp_inputs}
 \small
 \begin{tabular}{p{2.7cm}p{8.0cm}p{1.7cm}}
@@ -136,145 +127,83 @@ VHP调节阀位置 & 10FD1R-HFD1OM / 10FD2R-HFD2OM & \% \\
 \end{tabular}
 \end{table}
 
-VHP初始健康模型同时预测27个候选状态变量。为保持设备内部状态和外部接口的物理含义，本文将候选输出划分为四类：VHP本体状态、一级抽汽及1号高加接口、VHP至RH1接口以及VHP缸体与内部蒸汽状态。根据后续故障诊断节点冻结口径，从27个候选状态中保留24个作为本文模型评价与KG-GCN节点映射对象，未进入最终24点诊断集合的3个候选缸体温度仍参与原健康模型训练，但不计入本文24点宏平均评价指标。
+VHP模型共设置27个候选状态输出，覆盖VHP本体、一级抽汽及1号高加接口、VHP至RH1接口以及缸体与内部蒸汽状态。为与后续故障知识图谱中的参数节点保持一致，本文选取其中24个状态参数作为后续诊断节点，并对其状态监测精度进行重点分析。
+
+\subsubsection{数据集及实验设置}
+
+选取机组正常运行历史数据建立VHP状态监测模型，其中2024年5月数据作为训练集，2024年6月数据作为测试集。经运行状态及数据质量筛选后，训练集和测试集分别包含43911条和42710条有效记录。训练数据负荷范围为280.986--1029.905~MW，测试数据负荷范围为285.910--1009.141~MW，能够覆盖较宽的机组运行区间。
+
+针对时序模型，将连续24个采样点组成一个输入序列。VHP的GRU网络输入维数为16，隐藏层神经元数设置为32，采用单层GRU结构，隐藏状态经LayerNorm和Dropout(0.05)后连接线性输出层。模型可训练参数量为5755。优化器采用AdamW，初始学习率为$1\times10^{-3}$，权重衰减为$1\times10^{-4}$，批大小为4096，最大训练轮数为300；利用训练集内部验证数据确定最佳训练轮数，最终最佳轮数为161。
+
+为比较不同模型对VHP运行状态的建模能力，选取ANN、TCN和iTransformer作为对比方法。ANN作为静态数据驱动基线，TCN和iTransformer分别代表卷积时序建模和注意力时序建模方法\cite{Bai2018TCN,Liu2024iTransformer}。各模型使用相同的VHP输入变量和状态输出变量，具体模型参数设置见表\ref{tab:model_settings}。
 
 \begin{table}[htbp]
 \centering
-\caption{VHP候选健康状态输出及最终诊断节点分组}
-\label{tab:vhp_outputs}
+\caption{不同状态监测模型的主要参数设置}
+\label{tab:model_settings}
 \small
-\begin{tabular}{p{2.3cm}p{8.8cm}p{1.5cm}}
+\begin{tabular}{p{2.5cm}p{8.8cm}}
 \toprule
-状态组 & 主要DCS测点 & 数量 \\
+模型 & 主要参数 \\
 \midrule
-VHP本体状态 & 10MAA50CP101/102/103；10MAA50CT121A/122A/123A；10LBC01CP101、10LBC02CP101；10LBC01CT101、10LBC02CT101 & 10 \\
-一级抽汽接口 & 10LBQ10CP101、10LBQ10CT101A、10LBQ10CT102/103/104/105、10LBQ10CP102、10LBQ10CT106 & 8 \\
-VHP至RH1接口 & 10LBC20CT101、10LBC20CT103、10LBC20CT104 & 3 \\
-缸体与内部蒸汽 & 10MAA50CT111A、10MAA50CT112A、10MAA50CT131A、10MAA50CT132A、10MAA50CT151A、10MAA50CT152A & 6 \\
-\midrule
-最终诊断状态集合 & 上述候选中保留24个状态参数用于模型评价与后续KG-GCN节点映射 & 24 \\
+ANN & 32、16两个隐藏层，LayerNorm，SiLU，Dropout=0.05 \\
+GRU & 单层GRU，hidden size=32，LayerNorm，Dropout=0.05 \\
+TCN & 3个因果深度可分离残差块，卷积核5，膨胀系数1/2/4 \\
+iTransformer & 1层4头Encoder，$d_{model}=32$，前馈层维数64 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-% [图2-3占位] 使用当前已经定稿的VHP论文风格设备+测点图替换
-\begin{figure}[htbp]
-    \centering
-    \fbox{\parbox[c][5.2cm][c]{0.92\textwidth}{\centering
-    图2-3占位：超高压缸结构、介质流向与状态监测测点配置\\[5pt]
-    使用已完成的VHP论文风格设备原理/测点图；正文图中只保留最终论文口径，不展示历史待核、高旁专项和消融备注。}}
-    \caption{超高压缸结构及状态监测输入输出测点配置}
-    \label{fig:vhp_io}
-\end{figure}
-
-\subsubsection{数据集与预处理}
-\label{subsubsec:vhp_dataset}
-
-为验证所构建健康状态模型在跨月运行条件下的稳定性，本文采用2024年5月正常运行数据进行训练，并以2024年6月作为独立测试月份。原始DCS采样周期为1~min，经正常运行状态及数据质量筛选后，训练月包含43911条有效记录，测试月包含42710条有效记录；训练数据负荷范围为280.986--1029.905~MW，测试数据负荷范围为285.910--1009.141~MW。为保证健康基准对应常规通流状态，数据预处理阶段排除高压旁路阀实际反馈大于0.5\%的时段，并同步剔除其前后各60~min上下文。汽轮机转速仅作为正常运行筛选条件，不作为VHP模型输入。
-
-对于GRU、TCN和iTransformer等时序模型，连续24个1~min采样点构成一个输入窗口。若窗口内部存在时间戳缺失、重复或相邻间隔不等于1~min，则该窗口不进入模型训练或测试。完成连续窗口构造后，GRU最终获得43759个训练样本和42595个独立测试样本。全部标准化参数均只由相应训练数据拟合，测试月在模型结构、超参数及最佳轮数选择过程中保持完全不可见。
-
-\subsection{状态预测结果与模型比较}
-\label{subsec:health_results}
-
-\subsubsection{对比模型与评价方式}
-
-为评价GRU对汽轮机动态状态的建模能力，本文选取ANN、TCN和iTransformer作为对比模型。ANN采用当前时刻16维输入建立同步静态映射，作为不使用显式时间历史的基线；TCN使用24点历史窗口，通过因果卷积提取多尺度时间依赖\cite{Bai2018TCN}；iTransformer将各变量的24点历史序列映射为变量token，并利用Transformer编码器学习多变量关联\cite{Liu2024iTransformer}。四种模型使用相同的16个原始输入变量和相同的27个候选输出变量，均不使用目标变量历史值作为输入。最终性能统计统一基于冻结后的24个诊断状态点。
-
-模型主要采用决定系数 $R^2$、均方根误差RMSE和平均绝对误差MAE评价逐测点预测性能。其中，$R^2$定义为
+模型采用$R^2$、RMSE和MAE评价状态参数输出精度。其中$R^2$定义为
 \begin{equation}
-    R^2=1-\frac{\sum_{i=1}^{n}(y_i-\hat{y}_i)^2}
-    {\sum_{i=1}^{n}(y_i-\bar{y})^2}.
+    R^2=1-\frac{\sum_{i=1}^{n}(y_i-\hat y_i)^2}{\sum_{i=1}^{n}(y_i-\bar y)^2}.
     \label{eq:r2}
 \end{equation}
-由于24个最终状态点同时包含压力和温度参数，本文使用24点宏平均 $R^2$ 比较模型总体性能，而RMSE和MAE仅在相同物理量或单测点范围内比较。
+由于最终24个状态参数同时包含压力和温度等不同物理量，本文采用逐测点指标进行分析，并使用24个状态参数的平均$R^2$评价模型总体性能。
 
-\subsubsection{训练收敛与总体预测性能}
+\subsubsection{状态监测结果与对比}
 
-GRU完整训练月的标准化MSE由第1轮的1.0753快速下降，并在训练后期逐渐稳定，第161轮完整训练损失为0.0393。模型选择阶段的最佳验证损失为0.0575，表明在训练月内部验证集上未出现明显的后期损失反弹。最终使用选定的161轮重新训练完整5月数据，并直接在6月独立数据上进行一次性测试。
+图\ref{fig:gru_loss}给出了GRU模型训练过程中的损失变化。随着训练进行，模型损失快速下降并逐渐趋于稳定，说明GRU能够有效学习VHP运行变量与状态参数之间的非线性映射关系。
 
 % [图2-4占位] 使用最终顶刊风格Loss曲线
 \begin{figure}[htbp]
     \centering
     \fbox{\parbox[c][4.6cm][c]{0.88\textwidth}{\centering
     图2-4占位：GRU训练Loss曲线\\[5pt]
-    使用最终论文风格Loss图；标记最佳epoch=161，并区分训练期模型选择与完整训练月重训。}}
-    \caption{GRU健康状态模型训练损失变化}
+    使用最终论文风格Loss图。}}
+    \caption{VHP的GRU状态监测模型训练损失变化}
     \label{fig:gru_loss}
 \end{figure}
 
-表\ref{tab:model_macro_r2}给出了四种模型在2024年6月独立测试集上的24点宏平均 $R^2$。GRU获得0.9511的最高宏平均 $R^2$，相比ANN、TCN和iTransformer分别提高0.0424、0.0114和0.0155。在24个最终状态点中，GRU有17个测点取得四种模型中的最高 $R^2$，其余7个测点由iTransformer取得最高值。进一步分组可以看出，GRU在VHP本体状态、一级抽汽接口以及VHP至RH1接口三类状态上均保持最高宏平均 $R^2$，其中一级抽汽接口达到0.9634，VHP至RH1接口达到0.9569。缸体与内部蒸汽温度的可预测性整体弱于压力及主流蒸汽温度，但GRU仍取得0.8892的分组平均 $R^2$。
+表\ref{tab:model_macro_r2}给出了不同模型在测试集上的总体预测精度。GRU模型在24个状态参数上的平均$R^2$达到0.9511，高于ANN、TCN和iTransformer模型，表明GRU在VHP多状态参数建模中具有较好的综合性能。
 
 \begin{table}[htbp]
 \centering
-\caption{2024年6月独立测试集四种模型的24点宏平均$R^2$}
+\caption{不同模型在VHP测试集上的平均$R^2$}
 \label{tab:model_macro_r2}
 \begin{tabular}{lcccc}
 \toprule
-模型 & ANN & TCN & iTransformer & GRU-RNN \\
+模型 & ANN & TCN & iTransformer & GRU \\
 \midrule
-24点宏平均$R^2$ & 0.9087 & 0.9397 & 0.9356 & \textbf{0.9511} \\
+平均$R^2$ & 0.9087 & 0.9397 & 0.9356 & \textbf{0.9511} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\begin{table}[htbp]
-\centering
-\caption{不同VHP状态组的测试集宏平均$R^2$}
-\label{tab:group_r2}
-\small
-\begin{tabular}{lcccc}
-\toprule
-状态组 & ANN & TCN & iTransformer & GRU-RNN \\
-\midrule
-VHP本体状态 & 0.9299 & 0.9478 & 0.9470 & \textbf{0.9581} \\
-一级抽汽接口 & 0.9249 & 0.9516 & 0.9414 & \textbf{0.9634} \\
-VHP至RH1接口 & 0.8994 & 0.9421 & 0.9311 & \textbf{0.9569} \\
-缸体与内部蒸汽 & 0.8044 & 0.8784 & 0.8866 & \textbf{0.8892} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-从代表性测点可以进一步观察不同模型之间的差异。对于超高压缸叶片级压力\#1，四种模型均具有较高精度，其中GRU测试 $R^2$ 为0.9979；而对于具有更明显热惯性和动态波动特征的排汽温度，模型差异更加明显，例如VHP排汽蒸汽温度\#1的ANN、TCN、iTransformer和GRU测试 $R^2$ 分别为0.8092、0.8492、0.8488和0.8676，排汽蒸汽温度\#3分别为0.8840、0.9153、0.9135和0.9387。VHP至RH1及一级抽汽接口温度同样表现出GRU较稳定的跨月跟踪能力。对于个别高惯性缸体温度，如超高压内缸壁温90\%处\#1，所有模型的 $R^2$ 均明显低于主要通流状态，其中iTransformer取得0.7483、GRU为0.7346，说明该类变量仍存在额外热惯性或未显式建模边界影响。本文不将单一模型在所有测点上的绝对占优作为选型依据，而以整体状态覆盖能力、关键热力接口预测性能及模型复杂度综合确定GRU作为后续健康残差生成模型。
+从不同状态参数的结果可以看出，各模型对叶片级压力及排汽压力等压力参数均具有较高的拟合精度，而排汽温度、抽汽温度及缸体温度等具有较强动态和热惯性的参数表现出更明显的模型差异。以超高压排汽蒸汽温度\#1为例，ANN、TCN、iTransformer和GRU的测试集$R^2$分别为0.8092、0.8492、0.8488和0.8676；对于超高压排汽蒸汽温度\#3，四种模型的$R^2$分别为0.8840、0.9153、0.9135和0.9387。GRU在上述典型动态温度参数上具有更好的变化趋势跟踪能力。
 
 % [图2-5占位] 代表性预测曲线
 \begin{figure}[htbp]
     \centering
     \fbox{\parbox[c][5.2cm][c]{0.92\textwidth}{\centering
-    图2-5占位：四算法代表性状态预测结果\\[5pt]
-    建议仅保留3--4个代表性测点：叶片级压力\#1、VHP排汽温度\#1或\#3、A侧排汽垂直管温度、缸体温度。\\
-    不在正文堆叠全部24页预测图，完整逐点结果可作为补充材料。}}
-    \caption{VHP代表性状态参数的DCS实测值与模型预测值对比}
+    图2-5占位：VHP代表性状态参数预测结果\\[5pt]
+    建议选择叶片级压力、排汽温度和抽汽/冷再接口温度等具有代表性的状态参数。}}
+    \caption{VHP代表性状态参数的实测值与模型输出对比}
     \label{fig:vhp_prediction}
 \end{figure}
 
-\subsection{基于健康模型的动态残差构建}
-\label{subsec:health_residual}
+综合不同状态参数的预测结果，GRU在VHP主要通流状态和抽汽、再热接口参数上具有较好的建模精度，能够较稳定地表征正常运行条件下设备状态随工况变化的响应规律。因此，后续采用GRU状态监测模型输出作为汽轮机设备正常运行参考，并利用实测状态与模型输出之间的偏差信息开展故障诊断。
 
-上述状态预测模型的最终目的并非替代DCS测量值，而是为不同运行边界下的汽轮机设备提供动态健康参考。对最终保留的第 $i$ 个状态参数，定义原始健康残差为
-\begin{equation}
-    e_i(t)=y_i(t)-\hat{y}_i(t),
-    \label{eq:raw_residual}
-\end{equation}
-其中，$y_i(t)$ 为DCS实际测量值，$\hat{y}_i(t)$ 为GRU在相同运行边界下给出的健康状态估计值。当机组运行边界发生正常变化且设备状态保持健康时，模型预测值随边界共同变化，残差应维持在训练期健康波动范围附近；当设备状态偏离健康基准时，相应参数的残差幅值及其时序结构可能发生变化。因此，残差反映的是“相对于条件化健康状态的偏离”，而不是将某一参数绝对值的升高或降低直接判定为故障。
+\subsection{本章小结}
 
-考虑不同状态参数残差仍具有不同物理量纲，后续KG-GCN使用训练期健康残差统计量对每个节点进行标准化：
-\begin{equation}
-    r_i(t)=
-    \frac{e_i(t)-\mu^{\mathrm{tr}}_{e_i}}
-    {\sigma^{\mathrm{tr}}_{e_i}+\varepsilon},
-    \label{eq:standardized_residual}
-\end{equation}
-其中，$\mu^{\mathrm{tr}}_{e_i}$ 和 $\sigma^{\mathrm{tr}}_{e_i}$ 分别为训练期健康残差均值和标准差，$\varepsilon$ 为防止分母为零的微小常数。经过标准化后，24个最终诊断状态形成统一尺度的节点残差序列。对连续时刻构造长度为 $L_r$ 的滑动窗口，可得到
-\begin{equation}
-    \mathbf{R}_t=
-    \begin{bmatrix}
-    r_1(t-L_r+1) & \cdots & r_1(t)\\
-    \vdots & \ddots & \vdots\\
-    r_{24}(t-L_r+1) & \cdots & r_{24}(t)
-    \end{bmatrix},
-    \label{eq:residual_window}
-\end{equation}
-该矩阵的每一行对应一个汽轮机状态参数节点，每一列对应一个时间位置。第\ref{sec:kg_gcn}节进一步将 $\mathbf{R}_t$ 与汽轮机故障知识图谱得到的参数关联拓扑共同输入KG-GCN，使故障诊断不仅利用单点异常幅值，同时考虑异常在物理关联参数之间的联合分布及传播关系。
-
-本节从燃煤机组汽轮机系统整体出发，建立了统一的设备级健康状态建模方法，并以VHP为代表性对象验证了GRU模型在跨月运行数据上的状态预测能力。结果表明，GRU在24个最终诊断状态上的测试宏平均 $R^2$ 达到0.9511，能够为不同运行边界下的设备状态提供稳定健康参考。由此得到的标准化动态残差将作为后续汽轮机知识图谱与KG-GCN故障诊断模型的动态数据输入。
+本章针对燃煤机组汽轮机系统宽负荷运行下状态参数随运行边界动态变化的问题，提出了基于GRU的设备级状态监测方法。首先根据汽轮机系统热力拓扑和设备边界关系建立设备级建模框架，将各设备的直接热力边界和运行变量作为模型输入，将设备本体及关键接口状态参数作为模型输出；随后介绍GRU网络结构及模型训练方法，并以VHP为典型对象开展工程算例分析。结果表明，GRU模型在24个重点状态参数上的测试集平均$R^2$达到0.9511，整体性能优于ANN、TCN和iTransformer对比模型，能够较好地描述VHP正常运行状态。模型实测值与输出值之间的偏差信息将用于后续基于知识图谱和图卷积网络的汽轮机系统故障诊断。
