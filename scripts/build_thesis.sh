@@ -36,6 +36,8 @@ cd "$BUILD_DIR"
 printf '\n[0a/6] Applying final terminology/metadata normalizations...\n'
 # Canonical thesis notation: U+B→Y. The historical Ch2 v4 file contains one reversed-order summary occurrence.
 sed -i 's/\$B+U\\rightarrow Y\$/\$U+B\\rightarrow Y\$/g' sections/02_gru_monitoring_v4.tex
+# Historical placeholder text contains literal # characters; escape them even though final wrappers replace the boxes.
+sed -i 's/压力#1/压力\\#1/g; s/温度#3/温度\\#3/g; s/处#1/处\\#1/g' sections/02_gru_monitoring_v4.tex
 # Official NBS page displays this report as 2026-06-05.
 sed -i 's/国家统计局，2026-06-04/国家统计局，2026-06-05/g' references/publication.bib
 
