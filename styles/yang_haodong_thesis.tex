@@ -72,15 +72,13 @@
 \captionsetup[table]{position=top,skip=5pt}
 \captionsetup[figure]{position=bottom,skip=5pt}
 
-% 原稿表格：10.5 pt、单倍行距、首行加粗；上下/表头分隔线约0.5 pt。
+% 原稿表格：10.5 pt、单倍行距；上下/表头分隔线约0.5 pt。
+% 注意：booktabs的\toprule/\midrule内部依赖\noalign，不能通过在命令前插入\bfseries的方式全局自动加粗表头，
+% 否则会触发“Misplaced \noalign”。表头字重由各表源码显式控制；全局层仅统一字号、行距与线宽。
 \setlength{\heavyrulewidth}{0.5pt}
 \setlength{\lightrulewidth}{0.5pt}
 \setlength{\cmidrulewidth}{0.5pt}
 \AtBeginEnvironment{tabular}{\songti\zihao{5}\setstretch{1.0}}
-\let\YangOriginalToprule\toprule
-\let\YangOriginalMidrule\midrule
-\renewcommand{\toprule}{\bfseries\YangOriginalToprule}
-\renewcommand{\midrule}{\mdseries\YangOriginalMidrule}
 
 % ---------- 页眉页脚 ----------
 \pagestyle{fancy}
