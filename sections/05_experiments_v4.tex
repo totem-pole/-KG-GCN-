@@ -1,0 +1,277 @@
+\section{故障诊断实验与结果分析}
+\label{sec:experiments}
+
+\subsection{引言}
+
+前述章节分别完成了汽轮机系统设备健康状态建模、故障知识图谱构建以及KG-GCN故障诊断模型设计。本章在此基础上开展故障诊断算例验证。由于当前机组缺少能够覆盖多类典型故障的完整现场故障样本，本文采用“真实健康残差背景+独立故障机理约束”的Level-C半物理故障场景进行方法验证。该实验用于检验健康状态残差、知识拓扑和图卷积网络对典型汽轮机故障模式的识别能力，不将半物理构造样本表述为现场真实故障记录。
+
+本文总体研究对象仍为燃煤机组汽轮机系统，第三章构建的知识图谱覆盖主通流、再热、抽汽回热、给水和冷端等系统。本章仅选取超高压缸（VHP）作为代表性设备开展工程算例。VHP既包含本体通流状态，又与一级抽汽支路和一次再热接口直接相连，可在单一设备算例中形成多个具有明确工程位置的异常传播区域，适合用于验证知识图谱约束下的多参数故障诊断方法。
+
+\subsection{研究对象及故障数据集}
+\label{subsec:fault_dataset_v4}
+
+\subsubsection{VHP诊断节点}
+
+第二章VHP健康状态模型以16个边界条件和操作变量为输入，对27个候选状态参数进行同步预测。完成状态点筛选后，最终保留24个状态参数用于故障诊断。24个节点主要包括VHP叶片级压力、VHP排汽压力与温度、一级抽汽口及逆止门前后参数、1号高压加热器入口抽汽参数、VHP至一次低温再热接口温度以及缸壁和内部蒸汽温度。每一个诊断节点均保持固定DCS身份，并通过第三章设备--参数映射关系投影到VHP局部知识子图。
+
+\subsubsection{故障类型}
+
+结合第三章知识图谱中的汽轮机通流、汽封和抽汽支路故障机理，以及现有24个状态参数的可观测范围，构造正常状态和三类典型半物理故障场景，如表~\ref{tab:fault_classes_v4}所示。
+
+\begin{table}[htbp]
+    \centering
+    \caption{VHP半物理故障诊断类别}
+    \label{tab:fault_classes_v4}
+    \begin{tabular}{p{1.0cm}p{4.0cm}p{5.0cm}p{4.0cm}}
+        \toprule
+        类别 & 故障场景 & 主要机理与构造原则 & 主要作用区域 \\
+        \midrule
+        F0 & 正常状态 & 真实健康残差背景，不叠加故障响应 & 全部24节点 \\
+        F1 & VHP通流部件侵蚀/SPE & 有效通流面积及级组压力分布改变，构造压力主导的通流异常 & VHP本体、排汽及冷再接口 \\
+        F2 & 一级抽汽逆止门后管路泄漏 & 抽汽蒸汽泄漏及下游抽汽状态衰减 & 一级抽汽逆止门后及1号高加入口 \\
+        F3 & VHP汽封泄漏 & 蒸汽泄漏及本体热力状态改变 & VHP本体、排汽、抽汽及RH1接口 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+第三章中能够由本机设备资料、原始论文或标准直接支撑的关系用于知识图谱构建，而具体24个测点的故障响应方向和幅值仅作为半物理样本构造假设，不反向写入主KG邻接矩阵，从而避免同一组故障响应知识同时用于样本生成和分类图构造造成循环论证。
+
+\subsubsection{半物理故障场景构造}
+
+首先利用2024年6月独立测试月DCS实测值与第二章GRU健康模型预测值计算24维真实健康残差。对于第$k$类故障，第$n$个故障残差窗口定义为
+\begin{equation}
+R_{k,n}^{F}=R_n^{H}+a_{k,n}S_k\odot G_{k,n}+\epsilon_{k,n},
+\end{equation}
+其中$R_n^{H}$为真实健康残差窗口，$S_k$为故障空间响应向量，$a_{k,n}$为故障严重程度系数，$G_{k,n}$为故障时间演化函数，$\epsilon_{k,n}$为小幅随机扰动。不同样本随机采用阶跃、斜坡或Sigmoid形式，并随机改变故障起始位置及局部响应比例，以降低模型对单一固定模板的依赖。
+
+主实验采用60~min残差窗口，故障严重程度随机分布在训练健康残差标准差的$2.0\sim3.0\sigma$范围。该范围仅用于描述清晰可观测的半物理故障强度，不对应设备损伤百分比，也不等价于现场故障的绝对严重程度。较弱扰动范围在研发阶段另行保留，用于故障严重度敏感性分析。
+
+\subsubsection{数据划分}
+
+为避免相邻滑动窗口带来的数据泄漏，本文先按照自然日划分真实健康背景，再在各日期内部构造故障窗口。每连续5个自然日中，第1--3日用于训练，第4日用于验证，第5日用于测试，所有60点窗口均限制在单一自然日内。残差标准化均值和标准差仅由训练日期块计算。
+
+按照上述规则，训练集、验证集和测试集分别包含1712、556和560个窗口，四个类别在各数据子集中保持均衡，如表~\ref{tab:fault_dataset_split_v4}所示。
+
+\begin{table}[htbp]
+    \centering
+    \caption{半物理故障数据集样本分布}
+    \label{tab:fault_dataset_split_v4}
+    \begin{tabular}{lrrrr}
+        \toprule
+        数据集 & F0 & F1 & F2 & F3 \\
+        \midrule
+        训练集 & 428 & 428 & 428 & 428 \\
+        验证集 & 139 & 139 & 139 & 139 \\
+        测试集 & 140 & 140 & 140 & 140 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{实验设置与评价指标}
+\label{subsec:experiment_setting_v4}
+
+\subsubsection{对比模型与KG-GCN设置}
+
+为与课题组既有KG-GCN研究的实验组织方式保持一致\cite{YangHaodong2026CFB}，本文设置CNN和AE作为主要对比模型。CNN将$24\times60$残差窗口视为“参数--时间”二维矩阵，采用局部二维卷积核提取故障特征；AE首先通过无监督重构获得低维潜变量，再训练故障分类层；KG-GCN则将24个固定DCS节点映射到第三章知识子图，并利用知识邻接矩阵进行图卷积特征传播。
+
+KG-GCN采用两层残差图卷积编码器，每个节点首先将60点残差窗口映射为32维初始表示，随后通过两层GCN逐层聚合邻域信息。为避免固定DCS节点物理身份在全局平均池化中丢失，本文采用node-aware读出，将原始节点表示与两层图传播结果拼接后按固定节点顺序展开，再输入96维全连接分类层。
+
+考虑现场高质量故障样本稀缺，训练阶段进一步采用15\%随机Mask进行无标签残差重构预训练。完成预训练后冻结GCN编码器参数，仅利用带标签故障窗口训练分类层。该训练组织与课题组既有“无标签残差预训练--冻结图编码器--少量标签分类”技术路线保持一致\cite{YangHaodong2026CFB}，但本文数据、图谱及模型参数均针对汽轮机系统重新构建。
+
+\begin{table}[htbp]
+    \centering
+    \caption{KG-GCN主要实验参数}
+    \label{tab:kg_setting_v4}
+    \begin{tabular}{ll}
+        \toprule
+        参数 & 取值 \\
+        \midrule
+        诊断节点数 & 24 \\
+        残差窗口长度 & 60 \\
+        GCN层数 & 2 \\
+        节点隐藏维数 & 32 \\
+        Mask比例 & 15\% \\
+        图级读出 & Node-aware flatten \\
+        分类隐藏层 & 96 \\
+        优化器 & AdamW \\
+        学习率 & $1\times10^{-3}\sim1.5\times10^{-3}$ \\
+        权重衰减 & $1\times10^{-4}$ \\
+        主结果随机种子 & 123、101、202 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsubsection{评价指标}
+
+参照杨昊东KG-GCN算例的评价口径\cite{YangHaodong2026CFB}，本文采用Accuracy、Precision、Recall、F1-score和Macro-F1评价诊断性能，并给出混淆矩阵。对于第$k$类故障，Precision、Recall和F1分别为
+\begin{equation}
+P_k=\frac{TP_k}{TP_k+FP_k},
+\end{equation}
+\begin{equation}
+R_k=\frac{TP_k}{TP_k+FN_k},
+\end{equation}
+\begin{equation}
+F1_k=\frac{2P_kR_k}{P_k+R_k}.
+\end{equation}
+Macro-F1定义为
+\begin{equation}
+F1_{macro}=\frac{1}{C}\sum_{k=1}^{C}F1_k,
+\end{equation}
+整体准确率定义为
+\begin{equation}
+Accuracy=\frac{N_{correct}}{N_{all}}.
+\end{equation}
+
+\subsection{实验结果与分析}
+\label{subsec:results_v4}
+
+\subsubsection{原始状态量与健康残差对比}
+
+本文故障诊断方法的一个关键步骤是利用第二章健康状态模型将原始DCS状态转换为“实测值--健康预测值”残差。为验证该步骤的必要性，在保持故障窗口、故障物理扰动、数据划分、KG拓扑和模型结构完全一致的条件下，仅改变输入基底：一组直接使用标准化后的原始DCS状态量，另一组使用GRU健康残差。三随机种子结果见表~\ref{tab:raw_residual_v4}。
+
+\begin{table}[htbp]
+    \centering
+    \caption{原始DCS状态量与GRU健康残差诊断结果}
+    \label{tab:raw_residual_v4}
+    \begin{tabular}{lcc}
+        \toprule
+        输入方式 & Accuracy/\% & Macro-F1/\% \\
+        \midrule
+        原始DCS状态量 & $85.95\pm2.40$ & $86.03\pm2.41$ \\
+        \textbf{GRU健康残差} & $\mathbf{98.45\pm0.10}$ & $\mathbf{98.46\pm0.11}$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+健康残差输入使Macro-F1平均提高12.43个百分点，并显著降低不同随机初始化下的结果波动。这说明原始DCS状态中仍包含较强的负荷、边界条件及正常工况迁移信息，而GRU健康模型能够解释其中大部分可预测的正常变化，使后续KG-GCN更加集中地学习健康参考状态无法解释的异常偏差。该结果直接验证了第二章健康状态建模与第四章故障诊断之间的必要联系。
+
+\subsubsection{CNN、AE与KG-GCN主结果}
+
+在健康残差输入条件下，对CNN、AE和KG-GCN分别采用相同的三个随机种子重复训练，结果见表~\ref{tab:main_result_v4}。
+
+\begin{table}[htbp]
+    \centering
+    \caption{不同故障诊断模型的重复实验结果}
+    \label{tab:main_result_v4}
+    \begin{tabular}{lcccc}
+        \toprule
+        模型 & Accuracy/\% & Macro-Precision/\% & Macro-Recall/\% & Macro-F1/\% \\
+        \midrule
+        AE & $96.43\pm0.82$ & 96.47 & 96.43 & $96.43\pm0.82$ \\
+        CNN & $98.33\pm0.45$ & 98.35 & 98.33 & $98.33\pm0.45$ \\
+        \textbf{KG-GCN} & $\mathbf{98.45\pm0.10}$ & \textbf{98.48} & \textbf{98.45} & $\mathbf{98.46\pm0.11}$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+三种模型均能够识别清晰可观测的半物理故障场景，其中KG-GCN取得最高平均Accuracy和Macro-F1。标签充足时CNN已接近性能饱和，因此KG-GCN相对CNN的平均提升较小，但KG-GCN的随机种子标准差明显更低，说明知识拓扑约束下的图特征表示具有更稳定的训练结果。
+
+以seed=123为例，KG-GCN、CNN和AE在560个测试窗口上的误诊数量分别为8、12和25个。KG-GCN混淆矩阵为
+\begin{equation}
+\begin{bmatrix}
+139&1&0&0\\
+4&136&0&0\\
+1&1&138&0\\
+1&0&0&139
+\end{bmatrix}.
+\end{equation}
+可以看出，绝大多数样本集中于主对角线。F2一级抽汽支路泄漏和F3 VHP汽封泄漏识别效果较好，F1通流侵蚀与正常状态之间仍存在少量混淆。其原因在于VHP通流侵蚀和正常工况波动均可能作用于本体压力与排汽状态，而一级抽汽支路泄漏具有更集中的局部传播区域。
+
+\subsubsection{20\%标签条件下的掩码预训练}
+
+为验证掩码预训练在故障标签稀缺条件下的作用，将带标签训练窗口减少至20\%，即每个随机种子仅保留344个带标签样本。Mask预训练仍可使用全部1712个训练窗口，但完全忽略其故障类别标签。结果见表~\ref{tab:pretrain20_v4}。
+
+\begin{table}[htbp]
+    \centering
+    \caption{20\%故障标签条件下掩码预训练结果}
+    \label{tab:pretrain20_v4}
+    \begin{tabular}{lcc}
+        \toprule
+        训练方式 & Accuracy/\% & Macro-F1/\% \\
+        \midrule
+        KG-GCN直接监督训练 & $94.46\pm0.94$ & $94.48\pm0.93$ \\
+        \textbf{掩码预训练+冻结编码器} & $\mathbf{96.67\pm0.27}$ & $\mathbf{96.67\pm0.27}$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+掩码预训练使Macro-F1平均提高2.19个百分点，同时随机种子标准差由0.93个百分点降低至0.27个百分点。说明在故障标签数量有限时，利用大量无标签残差窗口预先学习参数节点之间的结构关系，可以改善后续小样本分类的精度和稳定性。
+
+\subsubsection{5\%标签条件下的模型对比}
+
+进一步将带标签训练窗口减少至5\%，每个随机种子仅使用84个带标签窗口。三种模型结果见表~\ref{tab:small05_models_v4}。
+
+\begin{table}[htbp]
+    \centering
+    \caption{5\%故障标签条件下不同模型诊断结果}
+    \label{tab:small05_models_v4}
+    \begin{tabular}{lcc}
+        \toprule
+        模型 & Accuracy/\% & Macro-F1/\% \\
+        \midrule
+        AE & $84.52\pm2.16$ & $84.31\pm2.15$ \\
+        CNN & $86.85\pm2.20$ & $86.85\pm2.12$ \\
+        \textbf{KG-GCN} & $\mathbf{88.04\pm0.31}$ & $\mathbf{88.12\pm0.28}$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+KG-GCN相对AE和CNN的Macro-F1分别提高约3.81和1.27个百分点。同时，AE和CNN的Macro-F1标准差均超过2个百分点，而KG-GCN仅为0.28个百分点。结果表明，当可用故障标签极少时，知识拓扑与无标签预训练能够显著降低模型对随机初始化和少量监督样本分布的敏感性。进一步降低至2\%标签时不同方法均出现较大的随机波动，因此本文不将该极端条件作为主要结论。
+
+\subsubsection{知识拓扑消融}
+
+为进一步区分图卷积结构和知识拓扑本身的贡献，在5\%标签条件下保持Mask预训练、两层GCN、分类头以及标签子集完全一致，仅改变邻接矩阵。Identity图只保留节点自连接；Corr图依据健康训练残差绝对相关系数构造统计相关边；KG图采用本机设备拓扑、参数归属和直接热力接口关系。结果见表~\ref{tab:graph_ablation05_v4}。
+
+\begin{table}[htbp]
+    \centering
+    \caption{5\%标签条件下不同图拓扑诊断结果}
+    \label{tab:graph_ablation05_v4}
+    \begin{tabular}{lcc}
+        \toprule
+        图拓扑 & Accuracy/\% & Macro-F1/\% \\
+        \midrule
+        Identity & $86.73\pm0.45$ & $86.78\pm0.41$ \\
+        Corr & $87.26\pm1.22$ & $87.33\pm1.11$ \\
+        \textbf{KG} & $\mathbf{88.04\pm0.31}$ & $\mathbf{88.12\pm0.28}$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+KG图相对Identity和Corr图的Macro-F1分别提高1.34和0.79个百分点，并具有最低的随机种子波动。该结果说明，当标签充足且各模型接近饱和精度时，拓扑来源的差异容易被高容量分类器弱化；当标签稀缺时，本机设备拓扑和热力接口提供的结构先验能够减少模型对偶然统计相关性的依赖，知识图谱贡献更加明显。
+
+\subsubsection{测点缺失鲁棒性}
+
+考虑DCS测点暂时失效、信号丢失或通信异常等工程情况，在训练模型保持不变的条件下，进一步对测试窗口随机屏蔽部分状态节点，并用标准化后的零值替代缺失测点。seed=123的代表结果见表~\ref{tab:missing_random_v4}。
+
+\begin{table}[htbp]
+    \centering
+    \caption{随机测点缺失条件下的Macro-F1}
+    \label{tab:missing_random_v4}
+    \begin{tabular}{rcc}
+        \toprule
+        缺失节点数 & CNN/\% & KG-GCN/\% \\
+        \midrule
+        0 & 97.85 & \textbf{98.75} \\
+        1 & 95.90 & \textbf{97.69} \\
+        2 & 94.33 & \textbf{95.74} \\
+        4 & 90.29 & \textbf{90.97} \\
+        6 & 83.84 & \textbf{84.98} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+随着缺失测点数量增加，两种模型性能均逐渐下降，但KG-GCN在不同随机缺失数量下均保持更高的Macro-F1，说明邻域特征传播能够在一定程度上补偿单个节点信息丢失。
+
+进一步针对一级抽汽支路构造局部连续测点缺失。当仅缺失逆止门后两个温度测点时，CNN的Macro-F1为96.97\%，高于KG-GCN的94.83\%；当逆止门后温度与1号高加入口压力、温度共4点同时缺失时，CNN与KG-GCN分别下降至62.33\%和65.18\%；当逆止门前后及1号高加入口共6点同时缺失时，两者分别为58.72\%和62.25\%。在4点和6点严重局部缺失条件下，KG-GCN分别领先约2.85和3.53个百分点，说明当局部物理支路的信息大面积缺失时，知识拓扑约束下的跨节点传播具有更明显的相对鲁棒性。
+
+\subsection{结果讨论}
+
+综合上述实验，本文KG-GCN方法的有效性并不依赖单一精度指标，而形成了由多组实验共同支撑的证据链。首先，Raw状态量与GRU健康残差对比表明，健康状态模型能够有效削弱正常负荷和边界变化对故障诊断的干扰，使KG-GCN的Macro-F1提高12.43个百分点，从而证明第二章健康建模是后续诊断链路中的必要环节。其次，在标签充足的主实验中，KG-GCN获得最高平均Accuracy和Macro-F1，并具有最低随机种子波动。再次，在20\%和5\%标签场景中，掩码预训练和知识拓扑的作用更加明显；5\%标签条件下KG图进一步优于统计相关图和无结构图。最后，在随机测点缺失以及一级抽汽支路严重局部缺失条件下，KG-GCN表现出更好的相对鲁棒性。
+
+上述结果与第四章提出的诊断逻辑一致：首先利用健康状态模型将原始DCS状态转化为异常残差，再利用汽轮机系统知识图谱组织参数节点关系，随后通过GCN实现跨节点故障特征传播，并利用大量无标签残差开展掩码预训练，在少量带标签故障样本条件下完成分类。该技术路线在组织方式上与课题组既有KG-GCN研究保持一致\cite{YangHaodong2026CFB}，但本文研究对象、设备拓扑、DCS节点、故障机理和实验数据均针对燃煤机组汽轮机系统重新构建。
+
+需要强调的是，本章故障样本仍属于基于真实健康残差背景和独立机理知识构造的半物理故障场景，不等同于现场真实故障事件。因此，本章结果用于证明所提方法在机理一致构造场景下的可行性及相对性能，后续仍需要结合现场缺陷记录、经校准的热力仿真或真实故障数据进一步验证工程泛化能力。
+
+\subsection{本章小结}
+
+本章以VHP作为汽轮机系统代表性设备，利用2024年6月真实健康运行数据构建正常状态、通流侵蚀、一级抽汽支路泄漏和VHP汽封泄漏四类Level-C半物理故障场景。实验结果表明，GRU健康残差相对原始DCS状态使KG-GCN的Macro-F1由$86.03\%\pm2.41\%$提高至$98.46\%\pm0.11\%$；在主三模型对比中，KG-GCN平均诊断性能高于CNN和AE；20\%标签条件下掩码预训练使Macro-F1相对直接监督训练提高2.19个百分点；5\%标签条件下KG-GCN分别高于CNN和AE约1.27和3.81个百分点，并在KG、Corr和Identity图拓扑消融中取得最高平均Macro-F1。测点缺失实验进一步表明，在随机缺失以及一级抽汽支路严重局部缺失条件下，KG-GCN具有较好的相对鲁棒性。上述实验从健康残差贡献、整体诊断精度、小样本学习、知识拓扑和工程鲁棒性多个方面验证了本文方法的有效性。
