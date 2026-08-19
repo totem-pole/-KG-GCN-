@@ -29,9 +29,9 @@
 % 第一章沿用已稳定的introduction正文，但章题统一显示为“绪论”。
 \let\ThesisOriginalSection\section
 \renewcommand{\section}[1]{\ThesisOriginalSection{绪论}\let\section\ThesisOriginalSection}
-\input{sections/01_introduction}
+\input{sections/01_introduction_final}
 
-% 定稿包装章节只负责最终图表嵌入；底层v4/v7正文仍保留为事实与审计源。
+% 定稿包装章节只负责最终图表嵌入；底层v4/v8正文仍保留为事实与审计源。
 \input{sections/02_gru_monitoring_final}
 \input{sections/03_knowledge_graph_final}
 \input{sections/04_kg_gcn_final}
