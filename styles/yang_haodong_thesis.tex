@@ -1,5 +1,5 @@
 % 杨昊东学位论文可见版式的LaTeX统一样式层
-% 参数依据 /mnt/data/杨昊东大论文.docx 的OOXML/Word样式直接核对：A4、页边距、字号、行距、标题层级、题注及参考文献。
+% 参数依据 /mnt/data/杨昊东大论文.docx 的OOXML/Word样式直接核对：A4、页边距、字号、行距、标题层级、题注、三线表及参考文献。
 % 学校封面、作者、导师等个人元数据因当前未提供，不在此文件中编造。
 
 \usepackage{amsmath,amssymb,graphicx,booktabs,multirow}
@@ -18,9 +18,11 @@
 % 杨昊东原稿：A4；上/下约2.0 cm，左/右约2.5 cm；主要正文节footer distance约1.75 cm。
 \geometry{a4paper,top=2.00cm,bottom=2.00cm,left=2.50cm,right=2.50cm,headheight=14pt,headsep=0.50cm,footskip=0.25cm}
 
-% ---------- 正文 ----------
-% 原稿“论文正文”：中文宋体、英文Times New Roman、12 pt、1.25倍行距、首行约24 pt（2字符）。
+% ---------- 字体与正文 ----------
+% 原稿中文正文为宋体，英文/数字为Times New Roman。TeX环境采用TeX Gyre Termes作为Times New Roman的开源等距替代。
+\setmainfont{TeX Gyre Termes}
 \songti\zihao{-4}
+% 原稿“论文正文”：12 pt、1.25倍行距、首行约24 pt（2字符）。
 \setstretch{1.25}
 \setlength{\parindent}{2em}
 \setlength{\parskip}{0pt}
@@ -68,6 +70,16 @@
 \captionsetup{font=yangcaption,labelsep=space,justification=centering,singlelinecheck=true}
 \captionsetup[table]{position=top,skip=5pt}
 \captionsetup[figure]{position=bottom,skip=5pt}
+
+% 原稿表格：10.5 pt、单倍行距、首行加粗；上下/表头分隔线约0.5 pt。
+\setlength{\heavyrulewidth}{0.5pt}
+\setlength{\lightrulewidth}{0.5pt}
+\setlength{\cmidrulewidth}{0.5pt}
+\AtBeginEnvironment{tabular}{\songti\zihao{5}\setstretch{1.0}}
+\let\YangOriginalToprule\toprule
+\let\YangOriginalMidrule\midrule
+\renewcommand{\toprule}{\bfseries\YangOriginalToprule}
+\renewcommand{\midrule}{\mdseries\YangOriginalMidrule}
 
 % ---------- 页眉页脚 ----------
 \pagestyle{fancy}
