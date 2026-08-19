@@ -1,0 +1,4 @@
+% Final-stage figure bridge.
+% build_thesis.sh converts all tracked SVG figures to sibling PDF files before XeLaTeX.
+% This graphics rule lets legacy \includegraphics{...svg} calls transparently load the converted PDF.
+\DeclareGraphicsRule{.svg}{pdf}{.pdf}{}
