@@ -1,0 +1,19 @@
+{
+  "main_edges": 123,
+  "A0_edges": 81,
+  "A0_conflict_edges": 2,
+  "A1_edges": 40,
+  "B_inference_edges": 7,
+  "nodes": 127,
+  "node_type_counts": {
+    "设备": 39,
+    "参数": 39,
+    "异常": 19,
+    "故障": 18,
+    "状态概念": 12
+  },
+  "dcs_mappings": 45,
+  "confirmed_dcs_mappings": 44,
+  "audit_blocking_count": 0,
+  "audit_major_count": 3
+}
