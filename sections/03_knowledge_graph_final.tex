@@ -1,0 +1,35 @@
+% Final wrapper for Chapter 3. The v7 text remains the semantic source of truth.
+\begingroup
+\newcount\ThesisChThreeSubsec
+\newcount\ThesisChThreeSubsub
+\ThesisChThreeSubsec=0
+\ThesisChThreeSubsub=0
+\let\ThesisChThreeOriginalSubsection\subsection
+\let\ThesisChThreeOriginalSubsubsection\subsubsection
+\renewcommand{\subsection}[1]{%
+  \advance\ThesisChThreeSubsec by 1%
+  \ifnum\ThesisChThreeSubsec=5
+    \begin{figure}[htbp]
+      \centering
+      \includegraphics[width=0.99\textwidth]{figures/ch3/fig3_2_turbine_kg_overview.pdf}
+      \caption{汽轮机系统知识图谱设备拓扑及代表性故障语义关系}
+      \label{fig:turbine_kg_overview_final}
+    \end{figure}
+    图~\ref{fig:turbine_kg_overview_final}仅展示进入主知识图谱的可审计设备拓扑及代表性故障语义链路，用于说明系统结构与故障知识的组织方式；完整关系仍以审查后的知识三元组为准。存在资料差异的候选接口保持待核状态，不作为确定性图关系或后续GCN投影边。
+  \fi
+  \ThesisChThreeOriginalSubsection{#1}%
+}
+\renewcommand{\subsubsection}[1]{%
+  \advance\ThesisChThreeSubsub by 1%
+  \ifnum\ThesisChThreeSubsub=2
+    \begin{figure}[htbp]
+      \centering
+      \includegraphics[width=0.98\textwidth]{figures/ch3/fig3_1_kg_construction_flow.pdf}
+      \caption{汽轮机系统故障知识图谱构建流程}
+      \label{fig:kg_construction_flow_final}
+    \end{figure}
+  \fi
+  \ThesisChThreeOriginalSubsubsection{#1}%
+}
+\input{sections/03_knowledge_graph_v7}
+\endgroup
