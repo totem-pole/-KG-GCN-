@@ -1,5 +1,7 @@
 % Final wrapper for Chapter 1. The original introduction text remains the semantic source.
 \begingroup
+\let\ThesisChOneOriginalSection\section
+\renewcommand{\section}[1]{\ThesisChOneOriginalSection{绪论}}
 \newcount\ThesisChOneFboxCount
 \ThesisChOneFboxCount=0
 \let\ThesisChOneOriginalFbox\fbox
