@@ -1,0 +1,107 @@
+% 杨昊东论文可见版式的LaTeX统一样式层
+% 目标：章节、图表、公式、目录、摘要、参考文献等版式与参考论文保持同一体系。
+% 说明：学校封面中的姓名、导师、专业等个体信息不在此文件中硬编码。
+
+\usepackage{amsmath,amssymb,graphicx,booktabs,multirow}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{fancyhdr}
+\usepackage{chngcntr}
+\usepackage{setspace}
+\usepackage{indentfirst}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{hyperref}
+\usepackage{etoolbox}
+
+% A4学位论文正文版心。以参考论文的Word学位论文版式为基准统一。
+\geometry{a4paper,top=2.54cm,bottom=2.54cm,left=3.00cm,right=2.60cm,headheight=14pt,headsep=0.60cm,footskip=1.20cm}
+
+% 正文字体与段落
+\zihao{-4}
+\setstretch{1.5}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0pt}
+
+% 将ctexart的一级section作为“章”使用：第一章、第二章……
+\ctexset{
+  section = {
+    name = {第,章},
+    number = \chinese{section},
+    format = \centering\heiti\zihao{3},
+    beforeskip = 0pt,
+    afterskip = 1.2\baselineskip
+  },
+  subsection = {
+    format = \heiti\zihao{-3},
+    beforeskip = 0.8\baselineskip,
+    afterskip = 0.4\baselineskip
+  },
+  subsubsection = {
+    format = \heiti\zihao{4},
+    beforeskip = 0.6\baselineskip,
+    afterskip = 0.3\baselineskip
+  }
+}
+
+% 每章另起一页；首章也如此
+\pretocmd{\section}{\clearpage}{}{}
+
+% 节标题按1.1、1.1.1编号
+\renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}}
+\renewcommand{\thesubsubsection}{\arabic{section}.\arabic{subsection}.\arabic{subsubsection}}
+
+% 图、表、公式按章编号：图2-1、表2-1、式(2-1)
+\counterwithin{figure}{section}
+\counterwithin{table}{section}
+\numberwithin{equation}{section}
+\renewcommand{\thefigure}{\arabic{section}-\arabic{figure}}
+\renewcommand{\thetable}{\arabic{section}-\arabic{table}}
+\renewcommand{\theequation}{\arabic{section}-\arabic{equation}}
+\renewcommand{\figurename}{图}
+\renewcommand{\tablename}{表}
+
+% 图表题注居中，题注字号统一
+\captionsetup{font={small},labelsep=space,justification=centering,singlelinecheck=true}
+\captionsetup[table]{position=top,skip=6pt}
+\captionsetup[figure]{position=bottom,skip=6pt}
+
+% 页眉页脚：正文保持学位论文简洁形式
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% 目录：列至三级标题，与参考论文目录层级一致
+\setcounter{tocdepth}{3}
+\renewcommand{\contentsname}{目录}
+\renewcommand{\cftsecfont}{\songti}
+\renewcommand{\cftsubsecfont}{\songti}
+\renewcommand{\cftsubsubsecfont}{\songti}
+\renewcommand{\cftsecpagefont}{\songti}
+\renewcommand{\cftsubsecpagefont}{\songti}
+\renewcommand{\cftsubsubsecpagefont}{\songti}
+
+% 超链接仅保留PDF内部跳转，不出现彩色框线
+\hypersetup{hidelinks,unicode=true}
+
+% 摘要页标题命令
+\newcommand{\cnabstracttitle}{%
+  \begin{center}\heiti\zihao{3} 摘\quad 要\end{center}\vspace{0.8\baselineskip}}
+\newcommand{\enabstracttitle}{%
+  \begin{center}\bfseries\zihao{3} Abstract\end{center}\vspace{0.8\baselineskip}}
+
+% 关键词格式
+\newcommand{\cnkeywords}[1]{\par\vspace{0.8\baselineskip}\noindent\textbf{关键词：}#1}
+\newcommand{\enkeywords}[1]{\par\vspace{0.8\baselineskip}\noindent\textbf{Keywords: }#1}
+
+% 参考文献标题和目录入口
+\renewcommand{\refname}{参考文献}
+\newcommand{\printthesisbibliography}{%
+  \clearpage
+  \phantomsection
+  \addcontentsline{toc}{section}{参考文献}
+  \bibliographystyle{gbt7714-numerical}
+  \bibliography{references/publication,references/methods,references/local_theses,references/kg_sources}
+}
