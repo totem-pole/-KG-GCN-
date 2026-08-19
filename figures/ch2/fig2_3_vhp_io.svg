@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="684pt" height="313.776pt" viewBox="0 0 684 313.776" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata><rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><cc:Work><dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/><dc:format>image/svg+xml</dc:format></cc:Work></rdf:RDF></metadata>
+ <defs><style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style></defs>
+ <g id="figure_1"><g id="patch_1"><path d="M 0 313.776 L 684 313.776 L 684 0 L 0 0 z" style="fill: #ffffff"/></g><g id="axes_1">
+<path d="M 40.68 123.95664 L 167.904 123.95664 Q 187.992 123.95664 187.992 114.97536 L 187.992 58.09392 Q 187.992 49.11264 167.904 49.11264 L 40.68 49.11264 Q 20.592 49.11264 20.592 58.09392 L 20.592 114.97536 Q 20.592 123.95664 40.68 123.95664 z" style="fill:#f0f0f0;stroke:#000"/>
+<path d="M 40.68 234.72576 L 167.904 234.72576 Q 187.992 234.72576 187.992 225.74448 L 187.992 168.86304 Q 187.992 159.88176 167.904 159.88176 L 40.68 159.88176 Q 20.592 159.88176 20.592 168.86304 L 20.592 225.74448 Q 20.592 234.72576 40.68 234.72576 z" style="fill:#f0f0f0;stroke:#000"/>
+<path d="M 261.648 201.7944 L 388.872 201.7944 Q 408.96 201.7944 408.96 192.81312 L 408.96 114.97536 Q 408.96 105.99408 388.872 105.99408 L 261.648 105.99408 Q 241.56 105.99408 241.56 114.97536 L 241.56 192.81312 Q 241.56 201.7944 261.648 201.7944 z" style="fill:#d1d1d1;stroke:#000"/>
+<path d="M 182.904201 87.721025 Q 214.776366 111.23343 245.748824 134.082112" style="fill:none;stroke:#000"/><path d="M243.31092 129.301252 L245.748824 134.082112 L240.461393 133.163919 z"/>
+<path d="M 183.16372 196.593966 Q 214.774238 184.58095 245.339647 172.965108" style="fill:none;stroke:#000"/><path d="M240.000148 172.426823 L245.339647 172.965108 L241.70532 176.913736 z"/>
+<g fill="#f0f0f0" stroke="#000">
+<rect x="469.224" y="61.08768" width="194.184" height="53.88768"/><rect x="469.224" y="114.97536" width="194.184" height="53.88768"/><rect x="469.224" y="168.86304" width="194.184" height="53.88768"/><rect x="469.224" y="222.75072" width="194.184" height="53.88768"/>
+</g>
+<g fill="none" stroke="#000"><path d="M404 153 L474 87"/><path d="M404 153 L474 140"/><path d="M404 155 L474 191"/><path d="M404 155 L474 244"/></g>
+<g font-family="Noto Sans CJK JP" fill="#000">
+<text font-weight="700" font-size="13" text-anchor="middle" x="342" y="23">VHP设备级状态监测输入输出结构</text>
+<text font-size="10" text-anchor="middle" x="104" y="78">热力边界 B</text><text font-size="10" text-anchor="middle" x="104" y="90">A/B侧主蒸汽压力、温度</text><text font-size="10" text-anchor="middle" x="104" y="102">3×P + 3×T / 侧，共12点</text>
+<text font-size="10" text-anchor="middle" x="104" y="183">操作/工况 U</text><text font-size="10" text-anchor="middle" x="104" y="195">A/B侧VHP调节阀实际位置</text><text font-size="10" text-anchor="middle" x="104" y="207">有功负荷 + 主蒸汽流量</text><text font-size="10" text-anchor="middle" x="104" y="219">共4点</text>
+<text font-size="10.5" text-anchor="middle" x="325" y="138">GRU健康状态模型</text><text font-size="10.5" text-anchor="middle" x="325" y="151">24步 × 16输入</text><text font-size="10.5" text-anchor="middle" x="325" y="164">GRU(32) → LN → Dropout</text><text font-size="10.5" text-anchor="middle" x="325" y="176">Linear(27)</text>
+<text font-size="9.5" text-anchor="middle" x="566" y="85">Y1  VHP本体及主排汽</text><text font-size="9.5" text-anchor="middle" x="566" y="97">叶片级压力、排汽P/T</text>
+<text font-size="9.5" text-anchor="middle" x="566" y="139">Y2  一级抽汽及1号高加接口</text><text font-size="9.5" text-anchor="middle" x="566" y="151">抽汽口/逆止门前后/高加入汽</text>
+<text font-size="9.5" text-anchor="middle" x="566" y="193">Y3  VHP→RH1冷再接口</text><text font-size="9.5" text-anchor="middle" x="566" y="205">一次低温再热关键温度</text>
+<text font-size="9.5" text-anchor="middle" x="566" y="247">Y4  缸体与内部慢变热状态</text><text font-size="9.5" text-anchor="middle" x="566" y="259">缸壁温度、内部蒸汽温度</text>
+<text font-size="9.3" text-anchor="middle" x="342" y="291">网络实际训练27个候选输出；完成状态点筛选后，以24个状态参数进行结果统计与故障诊断映射。</text>
+</g></g></g></svg>
