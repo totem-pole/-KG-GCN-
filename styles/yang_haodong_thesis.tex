@@ -117,7 +117,8 @@
 
 % ---------- 参考文献 ----------
 \renewcommand{\refname}{参考文献}
-\AtBeginEnvironment{thebibliography}{\songti\zihao{-4}\setstretch{1.25}}
+% 杨昊东原稿参考文献条目之间无额外段后空白，因此将natbib条目间距归零，只保留12 pt、1.25倍行距。
+\AtBeginEnvironment{thebibliography}{\songti\zihao{-4}\setstretch{1.25}\setlength{\bibsep}{0pt}}
 \newcommand{\printthesisbibliography}{%
   \clearpage
   \phantomsection
