@@ -1,0 +1,2 @@
+model,accuracy_mean,accuracy_std,macro_precision_mean,macro_recall_mean,macro_f1_mean,macro_f1_std
+DualPath-KG-GCN-h32,0.951071,0.010684,0.951956,0.951071,0.951141,0.010635
