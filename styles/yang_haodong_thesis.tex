@@ -11,6 +11,10 @@
 \usepackage{indentfirst}
 \usepackage{titlesec}
 \usepackage{tocloft}
+% gbt7714-numerical.bst writes natbib-compatible optional author labels. Numeric natbib must be loaded,
+% otherwise standard LaTeX prints those optional labels literally in both citations and bibliography.
+\usepackage[numbers,sort&compress]{natbib}
+\setcitestyle{numbers,square,comma,sort&compress}
 \usepackage{hyperref}
 \usepackage{etoolbox}
 
