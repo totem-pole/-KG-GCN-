@@ -28,7 +28,9 @@ def replace_figure_block(text: str, label: str, body: str) -> str:
     )
     if not pattern.search(text):
         raise RuntimeError(f"figure block not found: {label}")
-    return pattern.sub(body, text, count=1)
+    # Use a callable replacement so LaTeX backslashes are returned literally
+    # instead of being re-interpreted as regex replacement escapes.
+    return pattern.sub(lambda _m: body, text, count=1)
 
 
 def patch_ch2() -> None:
