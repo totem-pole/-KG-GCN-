@@ -24,7 +24,11 @@
 \pagenumbering{arabic}
 \setcounter{page}{1}
 
+% 第一章沿用已稳定的introduction正文，但章题统一显示为“绪论”。
+\let\ThesisOriginalSection\section
+\renewcommand{\section}[1]{\ThesisOriginalSection{绪论}\let\section\ThesisOriginalSection}
 \input{sections/01_introduction}
+
 \input{sections/02_gru_monitoring_v4}
 \input{sections/03_knowledge_graph_v7}
 \input{sections/04_kg_gcn_v7}
