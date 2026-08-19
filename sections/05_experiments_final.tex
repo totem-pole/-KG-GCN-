@@ -1,2 +1,15 @@
-% Final Chapter 5 source. v8 integrates figures directly at the Yang-style result positions.
+% Final Chapter 5 source. v8 integrates figures directly at Yang-style result positions.
+% This wrapper adds only the final no-leakage protocol statement before the result subsection.
+\begingroup
+\newcount\ThesisChFiveSubsec
+\ThesisChFiveSubsec=0
+\let\ThesisChFiveOriginalSubsection\subsection
+\renewcommand{\subsection}[1]{%
+  \advance\ThesisChFiveSubsec by 1%
+  \ifnum\ThesisChFiveSubsec=4
+    \par\noindent\textit{数据使用边界：}训练、验证和测试自然日严格互斥。所有模型参数的梯度更新仅使用训练集；验证集仅用于早停和模型选择，其中KG-GCN掩码预训练依据验证集被遮蔽位置重构MSE选择预训练轮次，分类阶段依据验证集Macro-F1及验证损失选择分类器轮次；测试集不参与标准化统计量估计、预训练、参数更新、早停或模型选择，仅在最终模型冻结后用于一次独立性能评价。\par
+  \fi
+  \ThesisChFiveOriginalSubsection{#1}%
+}
 \input{sections/05_experiments_v8}
+\endgroup
