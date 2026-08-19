@@ -33,7 +33,13 @@ mkdir -p "$BUILD_DIR"
 cp -a main.tex sections styles references figures "$BUILD_DIR"/
 cd "$BUILD_DIR"
 
-printf '\n[0/5] Converting SVG figures to PDF...\n'
+printf '\n[0a/6] Applying final terminology/metadata normalizations...\n'
+# Canonical thesis notation: U+B→Y. The historical Ch2 v4 file contains one reversed-order summary occurrence.
+sed -i 's/\$B+U\\rightarrow Y\$/\$U+B\\rightarrow Y\$/g' sections/02_gru_monitoring_v4.tex
+# Official NBS page displays this report as 2026-06-05.
+sed -i 's/国家统计局，2026-06-04/国家统计局，2026-06-05/g' references/publication.bib
+
+printf '\n[0b/6] Converting SVG figures to PDF...\n'
 while IFS= read -r -d '' f; do
   out="${f%.svg}.pdf"
   if [[ "$SVG_CONVERTER" == "rsvg" ]]; then
@@ -43,16 +49,16 @@ while IFS= read -r -d '' f; do
   fi
 done < <(find figures -type f -name '*.svg' -print0)
 
-printf '\n[1/5] XeLaTeX first pass...\n'
+printf '\n[1/6] XeLaTeX first pass...\n'
 xelatex -interaction=nonstopmode -halt-on-error "${MAIN}.tex"
 
-printf '\n[2/5] BibTeX...\n'
+printf '\n[2/6] BibTeX...\n'
 bibtex "$MAIN"
 
-printf '\n[3/5] XeLaTeX second pass...\n'
+printf '\n[3/6] XeLaTeX second pass...\n'
 xelatex -interaction=nonstopmode -halt-on-error "${MAIN}.tex"
 
-printf '\n[4/5] XeLaTeX final pass...\n'
+printf '\n[4/6] XeLaTeX final pass...\n'
 xelatex -interaction=nonstopmode -halt-on-error "${MAIN}.tex"
 
 cp "${MAIN}.pdf" "$ROOT_DIR/${MAIN}.pdf"
