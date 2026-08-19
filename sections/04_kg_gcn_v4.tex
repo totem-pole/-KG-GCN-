@@ -1,0 +1,129 @@
+\section{基于KG-GCN的燃煤机组汽轮机系统故障诊断方法}
+\label{sec:kg_gcn_v4}
+
+\subsection{引言}
+
+第二章基于正常运行DCS数据建立设备级健康状态模型，用于给出给定运行边界下各设备状态参数的健康参考值；第三章进一步利用机组设备IO、DCS点表以及公开故障资料构建汽轮机系统故障知识图谱，将设备、参数、异常、故障和处置关系组织为可计算的结构化知识。前者回答设备在当前运行条件下“应处于什么状态”，后者回答设备和状态参数之间“为什么存在联系”。因此，将状态监测残差与知识图谱拓扑共同引入故障诊断模型，可以在削弱正常工况变化影响的同时，利用汽轮机系统物理联系描述异常在多参数之间的协同传播特征。
+
+图卷积网络（Graph Convolutional Network，GCN）能够在非欧几里得图结构上聚合节点自身及其邻域特征\cite{Kipf2017GCN}。汽轮机故障往往通过主通流、抽汽和再热接口引起多个关联参数同步偏离，因此GCN的信息传播机制与汽轮机热力系统故障的多参数耦合特征具有较好的对应关系。本文在课题组既有KG-GCN技术路线\cite{YangHaodong2026CFB}基础上，将第三章经过证据审计的汽轮机知识关系投影为参数图，将第二章状态监测模型产生的实测--预测残差映射到图节点，构建面向汽轮机系统的KG-GCN故障诊断方法。
+
+\subsection{汽轮机参数图构建}
+\label{subsec:gcn_graph_v4}
+
+设诊断对象对应的参数图为
+\begin{equation}
+G_p=(V_p,E_p),
+\end{equation}
+其中$V_p=\{v_1,v_2,\ldots,v_N\}$表示能够与实时DCS状态量建立一一映射的参数节点集合，$E_p$表示由汽轮机系统知识图谱投影得到的参数关联边。第三章系统级知识图谱同时包含设备、故障、异常和处置等语义实体，但实时图卷积输入必须加载数值特征，因此需要从系统级KG中抽取当前诊断设备对应的参数子图。
+
+本文第五章采用VHP作为代表性算例。VHP参数图包含24个固定DCS状态节点，覆盖叶片级压力、排汽状态、一级抽汽支路、一次再热接口以及缸体热状态。主邻接矩阵只采用A0级本机设备拓扑、参数归属和直接热力接口关系进行投影。A1级故障机理知识用于第三章机理解释和第五章故障场景审计，但不将“故障类别--具体测点响应”直接写入主邻接矩阵，由此避免同一故障知识既用于生成半物理样本又用于定义分类拓扑所引起的循环论证。
+
+若节点$v_i$与$v_j$之间存在允许用于图卷积传播的知识关系，则邻接矩阵$A\in\mathbb R^{N\times N}$中相应元素取1。引入单位矩阵$I_N$后得到
+\begin{equation}
+\tilde A=A+I_N.
+\end{equation}
+其度矩阵定义为
+\begin{equation}
+\tilde D_{ii}=\sum_j\tilde A_{ij},
+\end{equation}
+进而构造对称归一化邻接矩阵
+\begin{equation}
+\bar A=\tilde D^{-\frac{1}{2}}\tilde A\tilde D^{-\frac{1}{2}}.
+\end{equation}
+
+\subsection{健康残差及图节点输入}
+\label{subsec:kg_input_v4}
+
+对于第$i$个状态参数，在时刻$t$的实测值和健康模型输出分别记为$y_i(t)$和$\hat y_i(t)$，定义状态残差
+\begin{equation}
+e_i(t)=y_i(t)-\hat y_i(t).
+\end{equation}
+正常运行时，健康模型可以解释由负荷、主蒸汽边界及操作量引起的大部分状态变化，残差主要反映正常预测误差与测量扰动；当设备状态发生异常后，实测状态相对于健康参考状态产生系统性偏离，并在多个关联参数上形成协同残差响应。因此，残差能够在一定程度上削弱正常工况变化对故障诊断的干扰。
+
+不同压力和温度测点量纲不同，采用训练集健康残差统计量进行标准化
+\begin{equation}
+r_i(t)=\frac{e_i(t)-\mu_i^H}{\sigma_i^H+\varepsilon},
+\end{equation}
+其中$\mu_i^H$和$\sigma_i^H$仅由训练日期块计算，验证集与测试集不参与标准化参数估计。
+
+考虑故障演化的时间连续性，对连续$L_r$个采样时刻构造参数--时间残差矩阵
+\begin{equation}
+R_t=
+\begin{bmatrix}
+r_1(t-L_r+1)&\cdots&r_1(t)\\
+r_2(t-L_r+1)&\cdots&r_2(t)\\
+\vdots&\ddots&\vdots\\
+r_N(t-L_r+1)&\cdots&r_N(t)
+\end{bmatrix}
+\in\mathbb R^{N\times L_r}.
+\end{equation}
+本文VHP算例取$N=24$、$L_r=60$。每一行始终对应一个固定DCS节点，因此节点身份本身具有明确工程意义。
+
+\subsection{两层残差KG-GCN编码器}
+\label{subsec:kg_encoder_v4}
+
+首先利用线性映射将每个节点60点残差窗口投影到$d$维特征空间
+\begin{equation}
+H^{(0)}=\mathrm{ReLU}(R_tW_e+b_e),
+\end{equation}
+其中$W_e\in\mathbb R^{L_r\times d}$。随后采用两层图卷积完成知识拓扑约束下的邻域聚合。为了避免多层传播造成节点自身信息快速衰减，在每层图卷积中加入残差连接和LayerNorm：
+\begin{equation}
+H^{(1)}=\mathrm{ReLU}\left[\mathrm{LN}\left(H^{(0)}+\bar AH^{(0)}W^{(1)}\right)\right],
+\end{equation}
+\begin{equation}
+H^{(2)}=\mathrm{ReLU}\left[\mathrm{LN}\left(H^{(1)}+\bar AH^{(1)}W^{(2)}\right)\right].
+\end{equation}
+其中$W^{(1)}$和$W^{(2)}$为可学习图卷积参数。第一层主要融合直接相邻设备/参数节点信息，第二层进一步传播至两跳邻域，使节点表示同时包含自身残差动态及局部热力拓扑环境。
+
+对于本文固定24测点的参数图，异常出现在哪个物理节点本身就是重要诊断信息。例如一级抽汽逆止门前后、1号高加入口和VHP排汽节点虽然可能同时受到同一故障影响，但其空间位置不能相互置换。因此本文不采用传统全局平均池化，而保留冻结的DCS节点顺序。将原始节点表示$H^{(0)}$与两层图传播结果$H^{(2)}$拼接
+\begin{equation}
+H^{*}=\mathrm{LN}\left([H^{(0)}\Vert H^{(2)}]\right),
+\end{equation}
+再按固定节点顺序展开为
+\begin{equation}
+\mathbf g=\mathrm{vec}(H^{*}).
+\end{equation}
+最后通过全连接分类层和Softmax得到故障类别概率
+\begin{equation}
+\mathbf z=\mathrm{ReLU}(W_r\mathbf g+b_r),
+\end{equation}
+\begin{equation}
+\hat{\mathbf p}=\mathrm{Softmax}(W_c\mathbf z+b_c).
+\end{equation}
+分类阶段采用交叉熵损失函数
+\begin{equation}
+\mathcal L_{cls}=-\frac{1}{M}\sum_{n=1}^{M}\sum_{k=1}^{C}y_{nk}\log\hat p_{nk}.
+\end{equation}
+
+\subsection{基于残差遮蔽的无标签预训练}
+\label{subsec:mask_pretrain_v4}
+
+电站运行数据中正常样本大量存在，而高质量故障标签通常较为有限。为提高KG-GCN在少故障标签场景下的特征学习能力，本文沿用“无标签残差预训练--冻结图编码器--少量标签分类”的技术路线\cite{YangHaodong2026CFB}。
+
+设训练残差窗口为$R$，随机掩码矩阵为$M$，其中约15\%的位置被遮蔽，则掩码输入表示为
+\begin{equation}
+\tilde R=M\odot R+(1-M)\odot R_{mask}.
+\end{equation}
+本文取$R_{mask}=0$。掩码残差首先经过两层KG-GCN编码器
+\begin{equation}
+Z=E_{\theta}(\bar A,\tilde R),
+\end{equation}
+然后通过线性解码器重构原始残差窗口
+\begin{equation}
+\hat R=D_{\phi}(Z).
+\end{equation}
+预训练损失仅在被遮蔽位置计算
+\begin{equation}
+\mathcal L_{mask}=\frac{\sum_{ij}(1-M_{ij})(R_{ij}-\hat R_{ij})^2}{\sum_{ij}(1-M_{ij})+\varepsilon}.
+\end{equation}
+该训练过程不使用故障类别标签，模型必须根据未遮蔽节点及其KG邻域关系恢复缺失残差信息，从而预先学习多参数之间的结构关联。
+
+完成预训练后固定编码器$E_{\theta}$的参数，仅使用带标签故障窗口训练全连接分类层。第五章实验表明，在标签充足时CNN和KG-GCN均能达到较高诊断精度，知识拓扑的绝对优势较小；但在20\%和5\%故障标签条件下，掩码预训练和KG拓扑的作用明显增强。因此，本文将该两阶段训练策略主要定位于“故障标签稀缺条件下的知识增强诊断”，而不是宣称预训练在所有数据规模下均必然提高性能。
+
+\subsection{KG-GCN故障诊断流程}
+
+综上，本文KG-GCN故障诊断流程可概括为：首先利用正常运行DCS数据训练设备健康状态模型，计算实测状态与健康参考状态之间的残差；然后根据第三章汽轮机系统知识图谱抽取当前诊断对象对应的参数子图，并将连续残差窗口加载到固定参数节点；随后对大量无标签训练窗口进行随机Mask，通过两层GCN学习知识拓扑约束下的残差表示；预训练结束后冻结图编码器，并利用少量带标签故障窗口训练分类层；最终根据Softmax输出实现故障类别识别。第五章将在VHP代表性算例中通过CNN、AE、图拓扑消融、小样本实验和测点缺失实验验证该方法。
+
+\subsection{本章小结}
+
+本章提出了基于KG-GCN的燃煤机组汽轮机系统故障诊断方法。首先利用健康状态模型残差构造多参数动态输入，并从系统级知识图谱中抽取可与DCS状态量一一映射的设备参数子图；随后采用两层残差GCN在知识邻接约束下逐层聚合参数节点信息，并采用保留固定测点身份的node-aware读出形成图级分类特征；进一步利用残差遮蔽重构实现无标签预训练，在故障标签有限时冻结图编码器并训练故障分类层。该方法形成了“健康状态监测--系统知识图谱--残差窗口--GCN特征传播--掩码预训练--小样本故障分类”的完整诊断链路，为第五章VHP代表性算例提供统一的方法基础。
