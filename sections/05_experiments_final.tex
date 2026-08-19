@@ -1,11 +1,14 @@
 % Final Chapter 5 source. v8 integrates figures directly at Yang-style result positions.
-% This wrapper adds only the final no-leakage protocol statement before the result subsection.
+% This wrapper adds only final audit clarifications on circular validation and data leakage.
 \begingroup
 \newcount\ThesisChFiveSubsec
 \ThesisChFiveSubsec=0
 \let\ThesisChFiveOriginalSubsection\subsection
 \renewcommand{\subsection}[1]{%
   \advance\ThesisChFiveSubsec by 1%
+  \ifnum\ThesisChFiveSubsec=3
+    \par\noindent\textit{故障场景与图结构独立性说明：}为避免利用同一知识结构同时生成故障样本并完成分类所造成的循环验证，式中故障空间响应模式$S_k$的具体测点作用方向与相对幅值不由KG邻接矩阵、GCN传播路径或任何图拓扑算法生成，而是依据独立故障机理和对应热力区域设定；第三、四章知识图谱仅用于规定分类模型中参数节点之间的信息传播关系。因点级响应尚缺少本机真实故障样本逐点标定，$S_k$在本文中属于半物理场景参数，不作为主知识图谱中的确定性故障证据。\par
+  \fi
   \ifnum\ThesisChFiveSubsec=4
     \par\noindent\textit{数据使用边界：}训练、验证和测试自然日严格互斥。所有模型参数的梯度更新仅使用训练集；验证集仅用于早停和模型选择，其中KG-GCN掩码预训练依据验证集被遮蔽位置重构MSE选择预训练轮次，分类阶段依据验证集Macro-F1及验证损失选择分类器轮次；测试集不参与标准化统计量估计、预训练、参数更新、早停或模型选择，仅在最终模型冻结后用于一次独立性能评价。\par
   \fi
