@@ -15,8 +15,9 @@
 \usepackage{etoolbox}
 
 % ---------- 页面 ----------
-% 杨昊东原稿：A4；上/下约2.0 cm，左/右约2.5 cm；主要正文节footer distance约1.75 cm。
-\geometry{a4paper,top=2.00cm,bottom=2.00cm,left=2.50cm,right=2.50cm,headheight=14pt,headsep=0.50cm,footskip=0.25cm}
+% 杨昊东原稿：A4；上/下约2.0 cm，左/右约2.5 cm。Word中的footer distance不能直接等同于LaTeX footskip；
+% 为避免页码与正文碰撞，在保持2.0 cm下边距的前提下设置0.75 cm footskip。
+\geometry{a4paper,top=2.00cm,bottom=2.00cm,left=2.50cm,right=2.50cm,headheight=14pt,headsep=0.50cm,footskip=0.75cm}
 
 % ---------- 字体与正文 ----------
 % 原稿中文正文为宋体，英文/数字为Times New Roman。TeX环境采用TeX Gyre Termes作为Times New Roman的开源等距替代。
