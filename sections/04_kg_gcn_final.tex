@@ -1,28 +1,37 @@
-% Final wrapper for Chapter 4. The v7 text remains the method source of truth.
+% Final wrapper for Chapter 4. The v7 text remains the method source of truth; this layer adds final figure placement and implementation-level clarifications verified against the frozen v07 training script.
 \begingroup
 \newcount\ThesisChFourSubsec
 \ThesisChFourSubsec=0
 \let\ThesisChFourOriginalSubsection\subsection
 \renewcommand{\subsection}[1]{%
   \advance\ThesisChFourSubsec by 1%
-  \ifnum\ThesisChFourSubsec=4
-    为统一全文术语，后文将实测状态与健康参考之间的差异统称为状态残差，其中$e_i(t)$表示原量纲状态残差，$r_i(t)$表示经训练集统计量标准化后的状态残差，$R_t$表示连续时间位置组成的多参数状态残差窗口。
-    \begin{figure}[htbp]
-      \centering
-      \includegraphics[width=0.98\textwidth]{figures/ch4/fig4_1_kg_gcn_input.pdf}
-      \caption{KG-GCN模型输入构建过程}
-      \label{fig:kg_gcn_input_final}
-    \end{figure}
+  \ifnum\ThesisChFourSubsec=3
+    \ThesisChFourOriginalSubsection{#1}%
+    为统一全文术语，后文将实测状态与健康参考之间的差异统称为状态残差，其中$e_i(t)$表示原量纲状态残差，$r_i(t)$表示经训练集统计量标准化后的状态残差，$R_t$表示连续时间位置组成的多参数状态残差窗口。%
+  \else
+    \ifnum\ThesisChFourSubsec=4
+      为与实际训练实现保持一致，两层GCN编码后并非直接对全部节点做全局平均。本文将节点初始表示$H^{(0)}$与第二层图卷积表示$H^{(2)}$在特征维拼接，并进行LayerNorm：
+      \begin{equation}
+      H_{cat}=\mathrm{LN}\left(H^{(0)}\Vert H^{(2)}\right)\in\mathbb R^{N\times 2d},
+      \end{equation}
+      式中，$\Vert$表示特征维拼接。分类阶段按照固定DCS节点顺序将$H_{cat}$展平为$2Nd$维向量，再依次通过96维全连接层、ReLU、Dropout(0.05)和故障类别输出层。该节点保持式读出既保留原始局部状态，又保留两层知识拓扑传播后的结构信息，避免全局平均池化消除固定测点的物理身份。预训练阶段则由线性解码器将每个节点的$2d$维表示恢复至长度为$L_r$的残差窗口，仅在被遮蔽位置计算重构误差。
+      \begin{figure}[htbp]
+        \centering
+        \includegraphics[width=0.98\textwidth]{figures/ch4/fig4_1_kg_gcn_input.pdf}
+        \caption{KG-GCN模型输入构建过程}
+        \label{fig:kg_gcn_input_final}
+      \end{figure}
+    \fi
+    \ifnum\ThesisChFourSubsec=5
+      \begin{figure}[htbp]
+        \centering
+        \includegraphics[width=0.98\textwidth]{figures/ch4/fig4_2_mask_training.pdf}
+        \caption{KG-GCN掩码预训练与故障分类流程}
+        \label{fig:mask_training_final}
+      \end{figure}
+    \fi
+    \ThesisChFourOriginalSubsection{#1}%
   \fi
-  \ifnum\ThesisChFourSubsec=5
-    \begin{figure}[htbp]
-      \centering
-      \includegraphics[width=0.98\textwidth]{figures/ch4/fig4_2_mask_training.pdf}
-      \caption{KG-GCN掩码预训练与故障分类流程}
-      \label{fig:mask_training_final}
-    \end{figure}
-  \fi
-  \ThesisChFourOriginalSubsection{#1}%
 }
 \input{sections/04_kg_gcn_v7}
 \endgroup
