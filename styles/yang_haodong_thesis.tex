@@ -118,7 +118,14 @@
 % ---------- 参考文献 ----------
 \renewcommand{\refname}{参考文献}
 % 杨昊东原稿参考文献条目之间无额外段后空白，因此将natbib条目间距归零，只保留12 pt、1.25倍行距。
-\AtBeginEnvironment{thebibliography}{\songti\zihao{-4}\setstretch{1.25}\setlength{\bibsep}{0pt}}
+% 同时禁止单条文献在页间拆分，避免URL或DOI孤零零地落到下一页页首。
+\AtBeginEnvironment{thebibliography}{%
+  \songti\zihao{-4}\setstretch{1.25}%
+  \setlength{\bibsep}{0pt}%
+  \interlinepenalty=10000%
+  \clubpenalty=10000%
+  \widowpenalty=10000%
+}
 \newcommand{\printthesisbibliography}{%
   \clearpage
   \phantomsection
