@@ -1,5 +1,5 @@
 % Final wrapper for Chapter 2.
-% The underlying v4 text remains the audited source. This wrapper only performs final figure placement.
+% The underlying v4 text remains the audited source. This wrapper only performs final figure placement and audit clarifications.
 \begingroup
 \newcount\ThesisChTwoFboxCount
 \ThesisChTwoFboxCount=0
@@ -18,6 +18,9 @@
   \fi\fi\fi
 }
 \renewcommand{\subsubsection}[1]{%
+  \ifstrequal{#1}{数据集及实验设置}{%
+    \par\noindent\textit{评价口径说明：}最终24个状态点由后续故障诊断的统一参数节点映射规则确定，不依据ANN、TCN、iTransformer-small或GRU在独立测试集上的预测精度进行筛选。网络训练阶段仍保留27个候选输出，CT132A、CT151A和CT152A仅不纳入本文统一的24点评价与诊断映射口径。\par
+  }{}%
   \ifstrequal{#1}{典型状态参数预测结果}{%
     \begin{figure}[htbp]
       \centering
