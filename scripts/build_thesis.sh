@@ -49,6 +49,10 @@ while IFS= read -r -d '' f; do
   fi
 done < <(find figures -type f -name '*.svg' -print0)
 
+# XeLaTeX/graphicx cannot reliably consume an explicitly named .svg path even when a graphics rule exists.
+# Rewrite only the disposable build copy so every explicit SVG include points to the converted sibling PDF.
+find sections -type f -name '*.tex' -print0 | xargs -0 sed -i 's/\.svg}/.pdf}/g'
+
 printf '\n[1/6] XeLaTeX first pass...\n'
 xelatex -interaction=nonstopmode -halt-on-error "${MAIN}.tex"
 
