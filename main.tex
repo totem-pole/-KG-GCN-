@@ -2,6 +2,8 @@
 
 % 全文版式统一采用杨昊东学位论文的可见结构体系
 \input{styles/yang_haodong_thesis}
+% 最终图文件由SVG在编译前统一转换为PDF；旧章节中的.svg引用透明映射到同名PDF。
+\input{styles/final_figure_bridge}
 
 \begin{document}
 
@@ -29,10 +31,11 @@
 \renewcommand{\section}[1]{\ThesisOriginalSection{绪论}\let\section\ThesisOriginalSection}
 \input{sections/01_introduction}
 
-\input{sections/02_gru_monitoring_v4}
-\input{sections/03_knowledge_graph_v7}
-\input{sections/04_kg_gcn_v7}
-\input{sections/05_experiments_v7}
+% 定稿包装章节只负责最终图表嵌入；底层v4/v7正文仍保留为事实与审计源。
+\input{sections/02_gru_monitoring_final}
+\input{sections/03_knowledge_graph_final}
+\input{sections/04_kg_gcn_final}
+\input{sections/05_experiments_final}
 \input{sections/06_conclusion_v2}
 
 % -------------------- 参考文献 --------------------
