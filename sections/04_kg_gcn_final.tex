@@ -17,7 +17,7 @@
       式中，$\Vert$表示特征维拼接。分类阶段按照固定DCS节点顺序将$H_{cat}$展平为$2Nd$维向量，再依次通过96维全连接层、ReLU、Dropout(0.05)和故障类别输出层。该节点保持式读出既保留原始局部状态，又保留两层知识拓扑传播后的结构信息，避免全局平均池化消除固定测点的物理身份。预训练阶段则由线性解码器将每个节点的$2d$维表示恢复至长度为$L_r$的残差窗口，仅在被遮蔽位置计算重构误差。
       \begin{figure}[htbp]
         \centering
-        \includegraphics[width=0.98\textwidth]{figures/ch4/fig4_1_kg_gcn_input.pdf}
+        \includegraphics[width=0.92\textwidth]{figures/ch4/fig4_1_kg_gcn_input.pdf}
         \caption{KG-GCN模型输入构建过程}
         \label{fig:kg_gcn_input_final}
       \end{figure}
@@ -25,7 +25,7 @@
     \ifnum\ThesisChFourSubsec=5
       \begin{figure}[htbp]
         \centering
-        \includegraphics[width=0.98\textwidth]{figures/ch4/fig4_2_mask_training.pdf}
+        \includegraphics[width=0.92\textwidth]{figures/ch4/fig4_2_mask_training.pdf}
         \caption{KG-GCN掩码预训练与故障分类流程}
         \label{fig:mask_training_final}
       \end{figure}
