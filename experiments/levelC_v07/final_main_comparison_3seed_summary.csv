@@ -1,0 +1,4 @@
+model,accuracy_mean,accuracy_std,macro_precision_mean,macro_recall_mean,macro_f1_mean,macro_f1_std
+CNN,0.983333,0.004494,0.983531,0.983333,0.983323,0.004522
+AE,0.964286,0.008183,0.964736,0.964286,0.964322,0.008186
+KG-GCN,0.984524,0.001031,0.984812,0.984524,0.984555,0.001052
