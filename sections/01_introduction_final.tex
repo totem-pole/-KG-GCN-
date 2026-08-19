@@ -1,0 +1,15 @@
+% Final wrapper for Chapter 1. The original introduction text remains the semantic source.
+\begingroup
+\newcount\ThesisChOneFboxCount
+\ThesisChOneFboxCount=0
+\let\ThesisChOneOriginalFbox\fbox
+\renewcommand{\fbox}[1]{%
+  \advance\ThesisChOneFboxCount by 1%
+  \ifnum\ThesisChOneFboxCount=1
+    \includegraphics[width=0.98\textwidth]{figures/ch1/fig1_overall_framework.pdf}%
+  \else
+    \ThesisChOneOriginalFbox{#1}%
+  \fi
+}
+\input{sections/01_introduction}
+\endgroup
