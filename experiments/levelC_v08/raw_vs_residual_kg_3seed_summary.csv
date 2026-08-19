@@ -1,0 +1,3 @@
+input,accuracy_mean,accuracy_std,macro_f1_mean,macro_f1_std,delta_f1_vs_raw
+Raw-DCS-state,0.8595238095238096,0.0239797,0.860301,0.024141,0.0
+GRU-Residual,0.9845238095238096,0.001031,0.984555,0.001052,0.124254
