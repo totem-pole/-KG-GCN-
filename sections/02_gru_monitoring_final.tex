@@ -1,0 +1,21 @@
+% Final wrapper for Chapter 2.
+% The underlying v4 text is frozen. This wrapper replaces only the three historical placeholder boxes
+% with audited final figures while preserving the original text and labels.
+\begingroup
+\newcount\ThesisChTwoFboxCount
+\ThesisChTwoFboxCount=0
+\let\ThesisOriginalFbox\fbox
+\renewcommand{\fbox}[1]{%
+  \advance\ThesisChTwoFboxCount by 1%
+  \ifnum\ThesisChTwoFboxCount=1
+    \includegraphics[width=0.96\textwidth]{figures/ch2/fig2_3_vhp_io.pdf}%
+  \else\ifnum\ThesisChTwoFboxCount=2
+    \includegraphics[width=0.82\textwidth]{figures/ch2/fig2_5_selection_loss.pdf}%
+  \else\ifnum\ThesisChTwoFboxCount=3
+    \includegraphics[width=0.98\textwidth]{figures/ch2/fig2_7_prediction_panels.pdf}%
+  \else
+    \ThesisOriginalFbox{#1}%
+  \fi\fi\fi
+}
+\input{sections/02_gru_monitoring_v4}
+\endgroup
