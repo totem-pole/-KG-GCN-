@@ -1,10 +1,10 @@
 % Final wrapper for Chapter 2.
-% The underlying v4 text is frozen. This wrapper replaces only the three historical placeholder boxes
-% with audited final figures while preserving the original text and labels.
+% The underlying v4 text remains the audited source. This wrapper only performs final figure placement.
 \begingroup
 \newcount\ThesisChTwoFboxCount
 \ThesisChTwoFboxCount=0
 \let\ThesisOriginalFbox\fbox
+\let\ThesisChTwoOriginalSubsubsection\subsubsection
 \renewcommand{\fbox}[1]{%
   \advance\ThesisChTwoFboxCount by 1%
   \ifnum\ThesisChTwoFboxCount=1
@@ -16,6 +16,17 @@
   \else
     \ThesisOriginalFbox{#1}%
   \fi\fi\fi
+}
+\renewcommand{\subsubsection}[1]{%
+  \ifdefstring{#1}{典型状态参数预测结果}{%
+    \begin{figure}[htbp]
+      \centering
+      \includegraphics[width=0.78\textwidth]{figures/ch2/fig2_6_macro_r2.pdf}
+      \caption{不同状态监测模型24点测试宏平均$R^2$比较}
+      \label{fig:macro_r2_final}
+    \end{figure}
+  }{}%
+  \ThesisChTwoOriginalSubsubsection{#1}%
 }
 \input{sections/02_gru_monitoring_v4}
 \endgroup
