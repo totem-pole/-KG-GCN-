@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 """Materialize the final thesis figures into the current semantic source files.
 
-This script is intentionally narrow and idempotent.  It is used only in the
+This script is intentionally narrow and idempotent. It is used only in the
 isolated/CI build copy, so the tracked semantic source remains auditable while
 the compiled thesis cannot fall back to historical placeholder boxes.
 """
 from __future__ import annotations
 
 from pathlib import Path
-import re
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -22,15 +21,19 @@ def write(path: str, text: str) -> None:
 
 
 def replace_figure_block(text: str, label: str, body: str) -> str:
-    pattern = re.compile(
-        r"\\begin\{figure\}\[htbp\].*?\\label\{" + re.escape(label) + r"\}.*?\\end\{figure\}",
-        re.S,
-    )
-    if not pattern.search(text):
-        raise RuntimeError(f"figure block not found: {label}")
-    # Use a callable replacement so LaTeX backslashes are returned literally
-    # instead of being re-interpreted as regex replacement escapes.
-    return pattern.sub(lambda _m: body, text, count=1)
+    """Replace exactly the figure environment containing the requested label."""
+    label_token = f"\\label{{{label}}}"
+    label_pos = text.find(label_token)
+    if label_pos < 0:
+        raise RuntimeError(f"figure label not found: {label}")
+    begin_token = "\\begin{figure}[htbp]"
+    end_token = "\\end{figure}"
+    start = text.rfind(begin_token, 0, label_pos)
+    end_start = text.find(end_token, label_pos)
+    if start < 0 or end_start < 0:
+        raise RuntimeError(f"figure boundaries not found around label: {label}")
+    end = end_start + len(end_token)
+    return text[:start] + body + text[end:]
 
 
 def patch_ch2() -> None:
