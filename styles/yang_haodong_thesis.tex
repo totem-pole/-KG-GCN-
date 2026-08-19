@@ -1,6 +1,6 @@
-% 杨昊东论文可见版式的LaTeX统一样式层
-% 目标：章节、图表、公式、目录、摘要、参考文献等版式与参考论文保持同一体系。
-% 说明：学校封面中的姓名、导师、专业等个体信息不在此文件中硬编码。
+% 杨昊东学位论文可见版式的LaTeX统一样式层
+% 参数依据 /mnt/data/杨昊东大论文.docx 的OOXML/Word样式直接核对：A4、页边距、字号、行距、标题层级、题注及参考文献。
+% 学校封面、作者、导师等个人元数据因当前未提供，不在此文件中编造。
 
 \usepackage{amsmath,amssymb,graphicx,booktabs,multirow}
 \usepackage{geometry}
@@ -14,44 +14,46 @@
 \usepackage{hyperref}
 \usepackage{etoolbox}
 
-% A4学位论文正文版心。以参考论文的Word学位论文版式为基准统一。
-\geometry{a4paper,top=2.54cm,bottom=2.54cm,left=3.00cm,right=2.60cm,headheight=14pt,headsep=0.60cm,footskip=1.20cm}
+% ---------- 页面 ----------
+% 杨昊东原稿：A4；上/下约2.0 cm，左/右约2.5 cm；主要正文节footer distance约1.75 cm。
+\geometry{a4paper,top=2.00cm,bottom=2.00cm,left=2.50cm,right=2.50cm,headheight=14pt,headsep=0.50cm,footskip=0.25cm}
 
-% 正文字体与段落
-\zihao{-4}
-\setstretch{1.5}
+% ---------- 正文 ----------
+% 原稿“论文正文”：中文宋体、英文Times New Roman、12 pt、1.25倍行距、首行约24 pt（2字符）。
+\songti\zihao{-4}
+\setstretch{1.25}
 \setlength{\parindent}{2em}
 \setlength{\parskip}{0pt}
 
-% 将ctexart的一级section作为“章”使用：第一章、第二章……
+% ---------- 章/节标题 ----------
+% 原稿：章16 pt黑体加粗居中；1.1为14 pt宋体加粗；1.1.1为12 pt黑体。
 \ctexset{
   section = {
     name = {第,章},
     number = \chinese{section},
-    format = \centering\heiti\zihao{3},
-    beforeskip = 0pt,
-    afterskip = 1.2\baselineskip
+    format = \centering\heiti\bfseries\zihao{3},
+    beforeskip = 16.3pt,
+    afterskip = 16.3pt
   },
   subsection = {
-    format = \heiti\zihao{-3},
-    beforeskip = 0.8\baselineskip,
-    afterskip = 0.4\baselineskip
+    format = \songti\bfseries\zihao{4},
+    beforeskip = 8.15pt,
+    afterskip = 8.15pt
   },
   subsubsection = {
-    format = \heiti\zihao{4},
-    beforeskip = 0.6\baselineskip,
-    afterskip = 0.3\baselineskip
+    format = \heiti\mdseries\zihao{-4},
+    beforeskip = 8.15pt,
+    afterskip = 8.15pt
   }
 }
 
-% 每章另起一页；首章也如此
+% 每章另起一页。
 \pretocmd{\section}{\clearpage}{}{}
 
-% 节标题按1.1、1.1.1编号
 \renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}}
 \renewcommand{\thesubsubsection}{\arabic{section}.\arabic{subsection}.\arabic{subsubsection}}
 
-% 图、表、公式按章编号：图2-1、表2-1、式(2-1)
+% ---------- 图、表、公式 ----------
 \counterwithin{figure}{section}
 \counterwithin{table}{section}
 \numberwithin{equation}{section}
@@ -61,43 +63,46 @@
 \renewcommand{\figurename}{图}
 \renewcommand{\tablename}{表}
 
-% 图表题注居中，题注字号统一
-\captionsetup{font={small},labelsep=space,justification=centering,singlelinecheck=true}
-\captionsetup[table]{position=top,skip=6pt}
-\captionsetup[figure]{position=bottom,skip=6pt}
+% 原稿图例：宋体/Times New Roman 10.5 pt、单倍行距、居中。
+\DeclareCaptionFont{yangcaption}{\songti\zihao{5}\setstretch{1.0}}
+\captionsetup{font=yangcaption,labelsep=space,justification=centering,singlelinecheck=true}
+\captionsetup[table]{position=top,skip=5pt}
+\captionsetup[figure]{position=bottom,skip=5pt}
 
-% 页眉页脚：正文保持学位论文简洁形式
+% ---------- 页眉页脚 ----------
 \pagestyle{fancy}
 \fancyhf{}
-\fancyfoot[C]{\thepage}
+\fancyfoot[C]{\songti\zihao{5}\thepage}
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
 
-% 目录：列至三级标题，与参考论文目录层级一致
+% ---------- 目录 ----------
+% 原稿TOC一级条目12 pt加粗，二/三级12 pt常规；目录列至三级。
 \setcounter{tocdepth}{3}
 \renewcommand{\contentsname}{目录}
-\renewcommand{\cftsecfont}{\songti}
-\renewcommand{\cftsubsecfont}{\songti}
-\renewcommand{\cftsubsubsecfont}{\songti}
-\renewcommand{\cftsecpagefont}{\songti}
-\renewcommand{\cftsubsecpagefont}{\songti}
-\renewcommand{\cftsubsubsecpagefont}{\songti}
+\renewcommand{\cftsecfont}{\songti\zihao{-4}\bfseries}
+\renewcommand{\cftsubsecfont}{\songti\zihao{-4}\mdseries}
+\renewcommand{\cftsubsubsecfont}{\songti\zihao{-4}\mdseries}
+\renewcommand{\cftsecpagefont}{\songti\zihao{-4}\bfseries}
+\renewcommand{\cftsubsecpagefont}{\songti\zihao{-4}\mdseries}
+\renewcommand{\cftsubsubsecpagefont}{\songti\zihao{-4}\mdseries}
 
-% 超链接仅保留PDF内部跳转，不出现彩色框线
+% ---------- PDF内部链接 ----------
 \hypersetup{hidelinks,unicode=true}
 
-% 摘要页标题命令
+% ---------- 摘要 ----------
+% 杨昊东原稿摘要/Abstract标题均为16 pt章标题样式；“摘要”本身不拉开字符间距。
 \newcommand{\cnabstracttitle}{%
-  \begin{center}\heiti\zihao{3} 摘\quad 要\end{center}\vspace{0.8\baselineskip}}
+  \begin{center}\heiti\bfseries\zihao{3}摘要\end{center}\vspace{7.9pt}}
 \newcommand{\enabstracttitle}{%
-  \begin{center}\bfseries\zihao{3} Abstract\end{center}\vspace{0.8\baselineskip}}
+  \begin{center}\bfseries\zihao{3}Abstract\end{center}\vspace{15.8pt}}
 
-% 关键词格式
-\newcommand{\cnkeywords}[1]{\par\vspace{0.8\baselineskip}\noindent\textbf{关键词：}#1}
-\newcommand{\enkeywords}[1]{\par\vspace{0.8\baselineskip}\noindent\textbf{Keywords: }#1}
+\newcommand{\cnkeywords}[1]{\par\noindent\textbf{关键词：}#1}
+\newcommand{\enkeywords}[1]{\par\noindent\textbf{Keywords: }#1}
 
-% 参考文献标题和目录入口
+% ---------- 参考文献 ----------
 \renewcommand{\refname}{参考文献}
+\AtBeginEnvironment{thebibliography}{\songti\zihao{-4}\setstretch{1.25}}
 \newcommand{\printthesisbibliography}{%
   \clearpage
   \phantomsection
