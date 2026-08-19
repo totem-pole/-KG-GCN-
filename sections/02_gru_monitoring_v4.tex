@@ -22,7 +22,7 @@
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.98\textwidth]{figures/ch2/fig2_1_turbine_system_final.svg}
+    \includegraphics[width=0.98\textwidth]{figures/ch2/fig2_1_turbine_system_final.pdf}
     \caption{燃煤机组汽轮机系统简化图}
     \label{fig:turbine_system_v4}
 \end{figure}
@@ -181,7 +181,7 @@ GRU训练过程采用基于时间展开的反向传播（Back Propagation Throug
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.94\textwidth]{figures/ch2/fig2_2_device_model_framework_final.svg}
+    \includegraphics[width=0.94\textwidth]{figures/ch2/fig2_2_device_model_framework_final.pdf}
     \caption{汽轮机系统设备级状态监测建模框架}
     \label{fig:device_framework_v4}
 \end{figure}
@@ -213,7 +213,7 @@ N_{\mathrm{total}}=4800+64+891=5755.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.98\textwidth]{figures/ch2/fig2_4_gru_architecture_final.svg}
+    \includegraphics[width=0.98\textwidth]{figures/ch2/fig2_4_gru_architecture_final.pdf}
     \caption{基于GRU的汽轮机设备状态监测模型结构}
     \label{fig:gru_architecture_v4}
 \end{figure}
@@ -237,8 +237,7 @@ VHP入口蒸汽由A/B侧主蒸汽管道进入，经调节阀控制后进入通�
 
 \begin{figure}[htbp]
     \centering
-    % 待最终VHP论文风格SVG替换
-    \fbox{\parbox[c][5.0cm][c]{0.94\textwidth}{\centering 图2-3占位：VHP结构、16输入边界、Y1--Y4四类最终状态节点及VHP→一级抽汽/RH1接口。}}
+    \includegraphics[width=0.96\textwidth]{figures/ch2/fig2_3_vhp_io.pdf}
     \caption{VHP结构及状态监测测点配置}
     \label{fig:vhp_io_v4}
 \end{figure}
@@ -267,8 +266,7 @@ R^2=1-\frac{\sum_{i=1}^{n}(y_i-\hat y_i)^2}{\sum_{i=1}^{n}(y_i-\bar y)^2},
 
 \begin{figure}[htbp]
     \centering
-    % \includegraphics[width=0.78\textwidth]{figures/ch2/fig2_5_selection_loss.svg}
-    \fbox{\parbox[c][4.2cm][c]{0.80\textwidth}{\centering 图2-5：训练损失、验证损失及最佳epoch=161。}}
+    \includegraphics[width=0.84\textwidth]{figures/ch2/fig2_5_selection_loss.pdf}
     \caption{GRU模型选择阶段训练与验证损失}
     \label{fig:gru_loss_v4}
 \end{figure}
@@ -282,6 +280,13 @@ R^2=1-\frac{\sum_{i=1}^{n}(y_i-\hat y_i)^2}{\sum_{i=1}^{n}(y_i-\bar y)^2},
 从状态分组看，GRU在VHP本体及主排汽状态Y1、一级抽汽接口Y2和VHP至RH1接口Y3上的平均$R^2$分别为0.9581、0.9634和0.9569，在缸体与内部蒸汽状态Y4上的平均$R^2$为0.8893。前三组主要由压力、主流蒸汽温度及抽汽/冷再接口状态构成，与入口边界和配汽状态之间具有较直接动态关系；Y4包含金属壁温等慢变状态，受蓄热和更长历史工况影响，其预测难度明显更高。这一分组差异与前述汽轮机参数快慢动态特性分析相一致。
 
 逐测点统计中，GRU在24个状态点中的17个点取得四种模型最高$R^2$，其余7个点由iTransformer-small取得最优结果。由于其中部分压力点各模型本身已达到接近0.998的高精度，单纯统计“最优点数量”并不足以评价模型优劣，因此本文进一步选取具有不同动态特性的代表性状态分析预测曲线。
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.78\textwidth]{figures/ch2/fig2_6_macro_r2.pdf}
+    \caption{不同状态监测模型24点测试宏平均$R^2$比较}
+    \label{fig:macro_r2_v4}
+\end{figure}
 
 \subsubsection{典型状态参数预测结果}
 
@@ -297,8 +302,7 @@ R^2=1-\frac{\sum_{i=1}^{n}(y_i-\hat y_i)^2}{\sum_{i=1}^{n}(y_i-\bar y)^2},
 
 \begin{figure}[htbp]
     \centering
-    % \includegraphics[width=0.96\textwidth]{figures/ch2/fig2_7_prediction_panels.svg}
-    \fbox{\parbox[c][5.6cm][c]{0.94\textwidth}{\centering 图2-7占位：压力#1、排汽温度#3、一级抽汽接口温度、内缸壁温90\%处#1四panel实测/预测曲线。}}
+    \includegraphics[width=0.98\textwidth]{figures/ch2/fig2_7_prediction_panels.pdf}
     \caption{VHP代表性状态参数的实测值与GRU预测值}
     \label{fig:prediction_examples_v4}
 \end{figure}
@@ -315,6 +319,6 @@ R^2=1-\frac{\sum_{i=1}^{n}(y_i-\hat y_i)^2}{\sum_{i=1}^{n}(y_i-\bar y)^2},
 
 本章针对燃煤机组汽轮机系统宽工况运行下正常状态随边界变化的问题，建立了面向设备物理边界的GRU状态监测方法。首先，从汽轮机本体、再热系统、抽汽回热和冷端系统四个方面分析了主要热力过程及状态参数作用，明确了直接热力边界、操作/工况量、本体状态、设备接口状态和慢变热状态等不同参数角色，并据此形成VHP、RH1、HP、RH2、IP、LP和凝汽器等主要设备的统一建模对象定义。
 
-其次，从RNN动态建模出发分析了普通递归结构在长期信息传递中的局限，介绍了GRU重置门、更新门和隐藏状态更新机制，并进一步给出多变量多输出时序回归、标准化MSE、LayerNorm、Dropout、BPTT及AdamW优化等与本文状态监测模型直接相关的方法。按照设备级$B+U\rightarrow Y$原则，构建了结构紧凑的GRU状态监测网络，并保持各设备模型独立读取真实DCS边界量，以避免模型级联误差传播。
+其次，从RNN动态建模出发分析了普通递归结构在长期信息传递中的局限，介绍了GRU重置门、更新门和隐藏状态更新机制，并进一步给出多变量多输出时序回归、标准化MSE、LayerNorm、Dropout、BPTT及AdamW优化等与本文状态监测模型直接相关的方法。按照设备级$U+B\rightarrow Y$原则，构建了结构紧凑的GRU状态监测网络，并保持各设备模型独立读取真实DCS边界量，以避免模型级联误差传播。
 
 最后，以VHP作为代表性工程对象，利用2024年5月正常运行数据训练、2024年6月独立测试，对ANN、TCN、iTransformer-small和GRU进行了比较。GRU在最终24个状态参数上的测试宏平均$R^2$达到0.9511，在17个测点取得四种模型中最高$R^2$，对VHP本体、一级抽汽和冷再接口状态均能够形成较稳定的正常参考；同时，缸体金属温度结果表明高热惯性状态仍是当前模型的主要困难对象。上述状态监测模型为后续基于知识图谱和图卷积网络的汽轮机系统故障诊断提供了健康状态基准。

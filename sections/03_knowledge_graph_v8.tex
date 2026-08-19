@@ -52,6 +52,13 @@
 
 在知识入图过程中，对机组结构事实与外部故障机理进行分层管理。由DCS、设备IO和系统拓扑直接确认的关系用于描述本文机组设备结构；由论文、标准或公开运行事件直接支持的关系用于描述通用故障机理；仅能依据热力规律推导而缺少直接证据的点级响应不作为主知识图谱中的确定关系。这样既保持机组拓扑与实际对象一致，也避免将跨机组经验过度外推至具体DCS测点。
 
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.98\textwidth]{figures/ch3/fig3_1_kg_construction_flow.pdf}
+    \caption{汽轮机系统故障知识图谱构建流程}
+    \label{fig:kg_construction_flow_v8}
+\end{figure}
+
 \subsubsection{节点和关系的构建与提取}
 \label{subsubsec:entity_relation_v8}
 
@@ -111,6 +118,15 @@ C_e=\alpha C_{llm}+\beta C_{rule}+\gamma C_{emb}+\delta C_{evi},
 在设备拓扑方面，图谱保存“主蒸汽--VHP--一次再热--HP--二次再热--IP--LP--凝汽器”的主通流关系，并包含VHP一级抽汽至1号高压加热器，以及HP、IP、LP与高压、中压、低压抽汽系统及相应回热设备组之间的系统级连接。对具体抽汽级次--单台加热器和除氧器蒸汽来源等尚存在资料差异的局部接口，保持待核状态，不进入确定性参数图。在故障语义方面，图谱进一步连接汽封缺陷、蒸汽泄漏、通流侵蚀、叶片沉积、凝汽器污垢和回热设备泄漏等故障与相应异常状态、关联参数及处置知识。
 
 系统级知识图谱用于表达完整汽轮机故障领域知识，而图卷积模型需要加载可实时获取的数值特征。因此，在知识图谱构建完成后，进一步建立标准参数实体与实际DCS测点之间的映射。第五章VHP代表性算例从系统知识图谱中抽取VHP本体、一级抽汽支路和一次再热接口对应的状态参数节点，形成设备任务参数子图，并将第二章健康状态模型产生的动态偏差信息加载至对应参数节点，实现静态领域知识与动态运行数据之间的连接。
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.99\textwidth]{figures/ch3/fig3_2_turbine_kg_overview.pdf}
+    \caption{汽轮机系统知识图谱设备拓扑及代表性故障语义关系}
+    \label{fig:turbine_kg_overview_v8}
+\end{figure}
+
+图~\ref{fig:turbine_kg_overview_v8}仅展示进入主知识图谱的可审计设备拓扑及代表性故障语义链路。VHP一级抽汽--1号高压加热器为已核实的机组直接关系；HP、IP和LP侧仅表示抽汽系统与相应回热设备组的系统级连接。具体抽汽级次--单台加热器以及除氧器蒸汽来源等尚未完成机组级一致性核验的局部接口，不作为确定性主图关系或后续GCN投影边。
 
 \subsection{本章小结}
 
