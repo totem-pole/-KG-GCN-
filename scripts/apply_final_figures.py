@@ -114,12 +114,12 @@ def patch_ch3() -> None:
         anchor = r"\subsection{本章小结}"
         fig = r"""\begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{figures/ch3/fig3_2_turbine_kg_overview.pdf}
+    \includegraphics[width=0.82\textwidth]{figures/ch3/fig3_2_turbine_kg_overview.pdf}
     \caption{汽轮机系统知识图谱设备拓扑及代表性故障语义关系}
     \label{fig:turbine_kg_overview_v8}
 \end{figure}
-
-图~\ref{fig:turbine_kg_overview_v8}按已核实层级展示抽汽拓扑；未完成机组级一致性核验的具体级次--单台设备关系及除氧器蒸汽来源不进入确定性主图或GCN投影。
+\vspace{-0.25em}
+图~\ref{fig:turbine_kg_overview_v8}仅按已核实层级展示；未核实的具体级次--单台设备关系不进入主图或GCN投影。
 
 """
         if anchor not in s:
