@@ -114,12 +114,12 @@ def patch_ch3() -> None:
         anchor = r"\subsection{本章小结}"
         fig = r"""\begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.99\textwidth]{figures/ch3/fig3_2_turbine_kg_overview.pdf}
+    \includegraphics[width=0.95\textwidth]{figures/ch3/fig3_2_turbine_kg_overview.pdf}
     \caption{汽轮机系统知识图谱设备拓扑及代表性故障语义关系}
     \label{fig:turbine_kg_overview_v8}
 \end{figure}
 
-图~\ref{fig:turbine_kg_overview_v8}仅展示进入主知识图谱的可审计设备拓扑及代表性故障语义链路。VHP一级抽汽--1号高压加热器为已核实的机组直接关系；HP、IP和LP侧仅表示抽汽系统与相应回热设备组的系统级连接。具体抽汽级次--单台加热器以及除氧器蒸汽来源等尚未完成机组级一致性核验的局部接口，不作为确定性主图关系或后续GCN投影边。
+图~\ref{fig:turbine_kg_overview_v8}按已核实层级展示抽汽拓扑；未完成机组级一致性核验的具体级次--单台设备关系及除氧器蒸汽来源不进入确定性主图或GCN投影。
 
 """
         if anchor not in s:
