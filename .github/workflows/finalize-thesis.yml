@@ -1,0 +1,66 @@
+name: Finalize thesis PDF
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply final figure insertions
+        run: python3 scripts/apply_final_figures.py
+
+      - name: Commit finalized source changes
+        shell: bash
+        run: |
+          if ! git diff --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add sections
+            git commit -m "chore: apply final thesis figures [skip ci]"
+            git push
+          else
+            echo "No source patch required."
+          fi
+
+      - name: Install XeLaTeX and SVG converter
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            texlive-xetex texlive-lang-chinese texlive-latex-extra \
+            texlive-bibtex-extra texlive-fonts-recommended texlive-science \
+            librsvg2-bin fonts-noto-cjk
+
+      - name: Build thesis
+        run: bash scripts/build_thesis.sh
+
+      - name: Check unresolved references and citations
+        shell: bash
+        run: |
+          if grep -E "There were undefined references|Citation .* undefined|Reference .* undefined|Warning--I didn't find a database entry" main.log; then
+            echo "Unresolved references/citations detected."
+            exit 1
+          fi
+          echo "No unresolved references/citations found."
+
+      - name: Upload thesis artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: thesis-final
+          path: |
+            main.pdf
+            main.log
+          if-no-files-found: error
+          retention-days: 30
