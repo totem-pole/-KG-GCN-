@@ -1,0 +1,2 @@
+model,seed,accuracy,macro_precision,macro_recall,macro_f1,pretrain_best_epoch,pretrain_val_masked_mse,classifier_best_epoch,classifier_best_val_loss,unlabeled_train_windows,unlabeled_val_windows,mask_ratio
+KG-MaskPretrain-Frozen,123,0.8535714285714285,0.8538477240253113,0.8535714285714286,0.8536660033675187,40,0.3890123963356018,33,0.49193254113197327,2484,808,0.3
