@@ -1,35 +1,10 @@
-% Final wrapper for Chapter 2.
-% The underlying v4 text remains the audited source. This wrapper only performs final figure placement and audit clarifications.
+% Final Chapter 2 wrapper. Historical figure placeholders are materialized by scripts/apply_final_figures.py in the isolated build copy.
 \begingroup
-% Ch2 contains a five-column system table; Yang's three-line tables use compact column spacing.
 \setlength{\tabcolsep}{2.5pt}
-\newcount\ThesisChTwoFboxCount
-\ThesisChTwoFboxCount=0
-\let\ThesisOriginalFbox\fbox
 \let\ThesisChTwoOriginalSubsubsection\subsubsection
-\renewcommand{\fbox}[1]{%
-  \advance\ThesisChTwoFboxCount by 1%
-  \ifnum\ThesisChTwoFboxCount=1
-    \includegraphics[width=0.96\textwidth]{figures/ch2/fig2_3_vhp_io.pdf}%
-  \else\ifnum\ThesisChTwoFboxCount=2
-    \includegraphics[width=0.82\textwidth]{figures/ch2/fig2_5_selection_loss.pdf}%
-  \else\ifnum\ThesisChTwoFboxCount=3
-    \includegraphics[width=0.98\textwidth]{figures/ch2/fig2_7_prediction_panels.pdf}%
-  \else
-    \ThesisOriginalFbox{#1}%
-  \fi\fi\fi
-}
 \renewcommand{\subsubsection}[1]{%
   \ifstrequal{#1}{数据集及实验设置}{%
     \par\noindent\textit{评价口径说明：}最终24个状态点由后续故障诊断的统一参数节点映射规则确定，不依据ANN、TCN、iTransformer-small或GRU在独立测试集上的预测精度进行筛选。网络训练阶段仍保留27个候选输出，CT132A、CT151A和CT152A仅不纳入本文统一的24点评价与诊断映射口径。\par
-  }{}%
-  \ifstrequal{#1}{典型状态参数预测结果}{%
-    \begin{figure}[htbp]
-      \centering
-      \includegraphics[width=0.78\textwidth]{figures/ch2/fig2_6_macro_r2.pdf}
-      \caption{不同状态监测模型24点测试宏平均$R^2$比较}
-      \label{fig:macro_r2_final}
-    \end{figure}
   }{}%
   \ThesisChTwoOriginalSubsubsection{#1}%
 }
