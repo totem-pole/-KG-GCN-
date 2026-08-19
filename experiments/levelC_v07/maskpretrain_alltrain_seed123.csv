@@ -1,0 +1,2 @@
+model,dataset,seed,mask_ratio,pretrain_best_epoch,pretrain_val_mse,classifier_best_epoch,best_val_macro_f1,accuracy,macro_precision,macro_recall,macro_f1
+KG-GCN-MaskPretrain-Frozen,v07_2to3sigma,123,0.15,40,0.354710,23,0.973066,0.980357,0.980599,0.980357,0.980322
