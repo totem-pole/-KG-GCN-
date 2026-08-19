@@ -18,7 +18,7 @@
   \fi\fi\fi
 }
 \renewcommand{\subsubsection}[1]{%
-  \ifdefstring{#1}{典型状态参数预测结果}{%
+  \ifstrequal{#1}{典型状态参数预测结果}{%
     \begin{figure}[htbp]
       \centering
       \includegraphics[width=0.78\textwidth]{figures/ch2/fig2_6_macro_r2.pdf}
