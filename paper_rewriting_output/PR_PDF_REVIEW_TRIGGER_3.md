@@ -1,3 +1,3 @@
-# Final PDF review trigger 3
+# Final PDF review trigger 4
 
-This trigger runs after the second compile-log fixes: SVG path rewrite, escaped legacy placeholder hashes, Ch1 final framework figure, Ch3 v8 audited topology, Ch5 v8 result layout, corrected footer spacing, and Yang OOXML-matched typography/table formatting.
+This trigger reruns the PR build after robust Latin-font fallback was added to the Yang-style thesis layout. The goal is to continue full XeLaTeX/BibTeX compilation without relying on CI-specific TeX Gyre Termes registration.
