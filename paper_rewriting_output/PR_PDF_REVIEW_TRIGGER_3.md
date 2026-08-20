@@ -1,3 +1,3 @@
-# Final PDF review trigger 4
+# Final PDF review trigger 5
 
-This trigger reruns the PR build after robust Latin-font fallback was added to the Yang-style thesis layout. The goal is to continue full XeLaTeX/BibTeX compilation without relying on CI-specific TeX Gyre Termes registration.
+This trigger forces a fresh PR merge snapshot after the Yang-style thesis font fallback was committed on main. It should compile the current main source rather than the older pre-fallback snapshot.
