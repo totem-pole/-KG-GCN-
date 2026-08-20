@@ -1,44 +1,77 @@
 # 基于KG-GCN的燃煤机组汽轮机系统的故障诊断方法
 
-本仓库为论文、知识图谱、实验代码、审稿记录与最终排版的单一事实入口。
+本仓库是论文正文、实验结果、知识图谱、审稿记录、图表与最终构建流程的**单一事实来源**。
 
-> **当前状态：正文、主实验、KG审计和论文主图已经冻结并接入主稿。当前仅剩全文引用/BibTeX核验、少量符号统一、完整编译与最终多Reviewer盲审。**
+> **当前状态（2026-08-20）：论文研究内容、主实验、KG审计、摘要/总结、参考文献、杨昊东式版式和主图均已完成。已有一版49页PDF完成完整XeLaTeX/BibTeX编译与逐页视觉审稿，Blocking=0、Major=0。**
 >
-> 写作与可见版式以杨昊东学位论文为母版：保持相近的章节功能、信息展开顺序、算法说明节奏、算例组织和图表位置；汽轮机对象、DCS数据、知识图谱、故障场景、实验结果及正文措辞均为本研究独立内容。
+> 该逐页审稿PDF生成后，`main` 又进行了两次仅针对第二章图位稳定性的收口修正：`9c960f0...`（7张图改为稳定章节锚点）和当前HEAD `f76a7249...`（修正第二章系统图标题锚点）。因此**最后只需从当前HEAD重新干净构建一次PDF，并回归检查第二章图位/分页，再刷新最终PDF SHA-256，即可正式交付。**
 
 ---
 
-## 1. 当前正式主稿
+## 1. 当前主分支断点
+
+当前 `main` HEAD：
+
+```text
+f76a7249e01451a7d383d1960a901554df45a909
+Fix Chapter-2 system-figure anchor to match v4 heading exactly
+```
+
+最近两项正文收口：
+
+```text
+9c960f0...  Place all seven final Chapter-2 figures by stable section anchors
+f76a724...  Fix Chapter-2 system-figure anchor to match v4 heading exactly
+```
+
+这些提交**没有改变实验数据、模型结果、KG证据、论文结论或章节内容，只改变第二章最终图的插入稳定性**。
+
+详细交接见：
+
+```text
+paper_rewriting_output/HANDOFF_20260820.md
+```
+
+完整逐页审稿记录见：
+
+```text
+paper_rewriting_output/final_pdf_review_v1.md
+```
+
+---
+
+## 2. 当前正式主稿
 
 `main.tex` 当前引用：
 
 ```text
 中文摘要：sections/00_abstract_cn.tex
 英文摘要：sections/00_abstract_en.tex
-第一章：sections/01_introduction.tex
+第一章：sections/01_introduction_final.tex
 第二章：sections/02_gru_monitoring_final.tex
 第三章：sections/03_knowledge_graph_final.tex
 第四章：sections/04_kg_gcn_final.tex
 第五章：sections/05_experiments_final.tex
 第六章：sections/06_conclusion_v2.tex
 版式：styles/yang_haodong_thesis.tex
-图文件桥接：styles/final_figure_bridge.tex
 ```
 
-其中final wrapper只负责定稿图表嵌入；底层主要文字事实源为：
+底层主要事实/文字源：
 
 ```text
+Ch1: sections/01_introduction.tex
 Ch2: sections/02_gru_monitoring_v4.tex
 Ch3: sections/03_knowledge_graph_v8.tex
 Ch4: sections/04_kg_gcn_v7.tex
-Ch5: sections/05_experiments_v7.tex
+Ch5: sections/05_experiments_v8.tex
+Ch6: sections/06_conclusion_v2.tex
 ```
 
-第三章已在v8中收紧抽汽拓扑口径：**VHP一级抽汽→1号高压加热器为已核实机组关系；HP/IP/LP仅写到相应高压/中压/低压抽汽系统与回热设备组的系统级连接，不再把未完成机组级核验的具体抽汽级次—单台加热器关系写成确定性事实。**
+`final` wrapper只负责最终图位、少量实现口径澄清和定稿排版，不改变冻结实验结果。
 
 ---
 
-## 2. 论文主线
+## 3. 论文技术主线
 
 ```text
 真实DCS健康运行数据
@@ -60,16 +93,16 @@ KG-GCN Mask重构预训练
 VHP代表性故障诊断算例
 ```
 
-全文研究对象为**燃煤机组汽轮机热力系统**，VHP仅作为完整展示方法的代表性算例。
+全文研究对象为**燃煤机组汽轮机热力系统**；VHP仅作为完整展示方法链路的代表性算例。
 
 ---
 
-## 3. 已冻结核心结果
+## 4. 已冻结核心结果
 
-### 3.1 VHP健康状态模型
+### 4.1 VHP健康状态模型
 
 - 2024-05正常运行DCS数据训练；2024-06独立测试；1 min采样。
-- 最终评价：24个状态参数。
+- 训练阶段保留27个候选输出，最终评价/诊断映射为24个状态参数。
 - 实际网络：`24×16 → GRU(32) → LayerNorm → Dropout(0.05) → Linear(27)`。
 - 参数量：5755。
 
@@ -82,18 +115,22 @@ VHP代表性故障诊断算例
 
 GRU在24个状态点中的17个点取得四种模型最高R²。
 
-### 3.2 汽轮机系统故障知识图谱
+### 4.2 汽轮机系统故障知识图谱
 
 - 标准实体：**127**
 - 候选关系：**123**
 - 进入主知识图谱：**121**
-- 冲突候选关系：**2**，保留待核，不进入确定性KG/GCN
+- 冲突候选：**2**，保留待核，不进入确定性KG/GCN
 - DCS映射：45条，其中44条已确认
-- 点级B类热力推断独立保存，不作为主KG证据
+- B类点级热力推断独立保存，不作为主KG证据
 
-机组结构知识优先来自DCS点表、设备IO与系统接口核对；公开论文、标准和运行事件只用于补充可迁移的故障机理。LLM仅生成候选知识，不作为唯一证据。
+第三章v8已经收紧机组拓扑口径：
 
-### 3.3 VHP代表性KG-GCN诊断
+- **VHP一级抽汽 → 1号高压加热器**：机组资料已核实；
+- HP/IP/LP：只写到相应抽汽系统与回热设备组的系统级连接；
+- 未完成机组一致性核验的“具体抽汽级次 → 单台加热器”与除氧器蒸汽来源，不作为确定性主图关系或GCN投影边。
+
+### 4.3 VHP代表性KG-GCN诊断
 
 3组随机种子正式汇总：
 
@@ -103,7 +140,7 @@ GRU在24个状态点中的17个点取得四种模型最高R²。
 | AE | 96.43% ± 0.82% | 96.43% ± 0.82% |
 | **KG-GCN** | **98.45% ± 0.10%** | **98.46% ± 0.11%** |
 
-固定seed=123主实验：
+固定seed=123：
 
 | 模型 | Accuracy | Precision | Recall | F1 |
 |---|---:|---:|---:|---:|
@@ -111,7 +148,7 @@ GRU在24个状态点中的17个点取得四种模型最高R²。
 | AE | 95.54% | 95.57% | 95.54% | 95.54% |
 | **KG-GCN** | **98.57%** | **98.60%** | **98.57%** | **98.58%** |
 
-20%带标签故障窗口条件下：
+20%带标签故障窗口：
 
 ```text
 KG-GCN scratch                 94.48% ± 0.93%
@@ -121,7 +158,7 @@ Mask预训练 + frozen encoder   96.67% ± 0.27%
 
 ---
 
-## 4. 数据与结论边界
+## 5. 关键实验与结论边界
 
 第五章主故障样本不是现场真实故障，而是：
 
@@ -135,138 +172,189 @@ Mask预训练 + frozen encoder   96.67% ± 0.27%
 半物理 / 机理一致故障场景
 ```
 
-硬约束：
+必须保持：
 
-- 不将半物理样本称为真实电厂故障样本；
-- 不把VHP结果外推成HP/IP/LP/凝汽器已经完成同等独立验证；
-- 故障空间签名不得由同一个KG邻接矩阵生成，避免循环验证；
-- 不声称Mask预训练在所有标签比例下均优于scratch；
-- 不声称KG在任意图消融条件下都必然优于统计相关图；
-- 跨型式蒸汽轮机证据只作为通用机理参考，不写成本文机组现场证据。
-
----
-
-## 5. 最终论文图表
-
-最终图已经进入仓库并由final wrapper接入主稿：
-
-```text
-figures/ch2/
-  fig2_1_turbine_system_final.svg
-  fig2_2_device_model_framework_final.svg
-  fig2_3_vhp_io.svg
-  fig2_4_gru_architecture_final.svg
-  fig2_5_selection_loss.svg
-  fig2_6_macro_r2.svg
-  fig2_7_prediction_panels.svg
-
-figures/ch3/
-  fig3_1_kg_construction_flow.svg
-  fig3_2_turbine_kg_overview.svg
-
-figures/ch4/
-  fig4_1_kg_gcn_input.svg
-  fig4_2_mask_training.svg
-
-figures/ch5/
-  fig5_1_confusion_matrices.svg
-  fig5_2_main_comparison.svg
-  fig5_3_mask_ablation.svg
-```
-
-编译时所有SVG由 `scripts/build_thesis.sh` 在隔离目录中统一转换为PDF，确保论文中保持矢量清晰度。
+- 不将半物理样本称为现场真实故障；
+- 不把VHP结果外推成HP/IP/LP/凝汽器已完成同等独立验证；
+- 故障空间响应 `S_k` 不由分类KG邻接矩阵生成，避免循环验证；
+- 不声称Mask预训练在所有标签比例下都提升；
+- 不声称KG在所有图结构消融中都必然最好；
+- 跨型式蒸汽轮机文献只作通用机理参考，不写成本文机组现场证据。
 
 ---
 
-## 6. 杨昊东式学位论文版式
+## 6. 杨昊东式论文写法与版式
 
-统一版式位于：
-
-```text
-styles/yang_haodong_thesis.tex
-```
-
-当前结构：
+论文写法和信息顺序以杨昊东学位论文为母版：
 
 ```text
-中文摘要
-→ English Abstract
-→ 目录
-→ 第一章 绪论
-→ 第二章 状态监测
-→ 第三章 知识图谱
-→ 第四章 KG-GCN
-→ 第五章 算例分析
-→ 第六章 总结与展望
-→ 参考文献
+问题背景
+→ 参数/对象特性
+→ 方法原理
+→ 模型结构与公式
+→ 算例设置
+→ 主结果表
+→ 混淆矩阵/图
+→ 分模型解释
+→ 小样本/消融补充
+→ 本章小结
 ```
 
-并统一：章/节/三级标题编号、图2-1/表2-1/式(2-1)、前置罗马页码、正文阿拉伯页码、GB/T 7714顺序编码参考文献等。
+当前可见版式不是通用模板估计，而是依据杨昊东原始DOCX的OOXML反向核对：
 
-封面姓名、导师、专业、学校等元数据尚未硬编码，避免编造。
+- A4；上/下约2.0 cm，左/右约2.5 cm；
+- 正文12 pt、小四、1.25倍行距、首行约2字符；
+- 章标题16 pt黑体；
+- 二级标题14 pt宋体加粗；
+- 三级标题12 pt黑体；
+- 图题/表内约10.5 pt；
+- 三线表；
+- GB/T 7714数字顺序编码参考文献。
+
+版式审计记录：
+
+```text
+paper_rewriting_output/yang_format_ooxml_audit_v1.md
+```
 
 ---
 
-## 7. 编译
+## 7. PDF构建与逐页审稿状态
+
+已经完成过一次完整定稿构建与逐页审稿：
+
+```text
+页数：49页
+A4：正常
+undefined citation：0
+undefined reference：0
+Overfull hbox：0
+Underfull hbox：0
+Blocking：0
+Major：0
+```
+
+该已审PDF记录：
+
+```text
+GitHub Actions run: 32295100893
+SHA-256: 4676eee674a3d7205cbb942f08bb55b5542fbfc4eff43e127aab59fdb1f6d34b
+```
+
+**注意：这份PDF对应的是当前第二章“稳定锚点”最终修正之前的审稿快照。** 当前main已经比它更新，因此它是“已完成逐页审稿的基准PDF”，而不是当前HEAD的最终交付hash。
+
+当前HEAD最终交付只需：
+
+```text
+1. 从 main@f76a7249... 干净构建
+2. undefined citation/reference 必须保持0
+3. 对比上一份49页基准PDF
+4. 重点回归第二章7张图、图号、图位和分页
+5. 若其余页面像素/排版未变化，可继承上一轮逐页审稿结论
+6. 生成 final_pdf_review_v2.md 并记录新run id + SHA-256
+7. 交付最终PDF
+```
+
+不要再生成整篇contact sheet做“一张大图分析”；应按**PDF页级回归**处理，避免工具卡住。
+
+---
+
+## 8. 当前论文图表
+
+### 第一章
+- 总体技术路线图
+
+### 第二章
+- 汽轮机系统简化图
+- 设备级建模框架图
+- VHP输入输出/测点配置图
+- GRU网络结构图
+- 真实训练/验证Loss图
+- 四模型宏平均R²图
+- 代表性DCS实测/GRU预测曲线图
+
+### 第三章
+- KG构建流程图
+- 审计后系统KG拓扑及代表性故障语义图
+
+### 第四章
+- KG-GCN输入构建图
+- Mask预训练与分类流程图
+
+### 第五章
+- CNN/AE/KG-GCN混淆矩阵
+- 3-seed Macro-F1比较
+- 20%标签Mask预训练消融
+
+---
+
+## 9. 构建方式
+
+本地：
 
 ```bash
 bash scripts/build_thesis.sh
 ```
 
-流程：
+GitHub Actions快速构建：
 
 ```text
-复制至隔离构建目录
-→ SVG批量转PDF
-→ XeLaTeX
-→ BibTeX
-→ XeLaTeX
-→ XeLaTeX
-→ main.pdf
+.github/workflows/pr-build-thesis-fast.yml
 ```
 
-GitHub Actions工作流已建立，但当前连接环境未观察到有效run，因此**定稿流程不再依赖Actions触发**；源文件、final wrapper和图表均已直接写入main分支。
-
----
-
-## 8. 当前剩余定稿任务
-
-- [x] 第一至第六章主线写作
-- [x] 中文摘要 / English Abstract
-- [x] 总结与展望
-- [x] 杨昊东母版式章节重排与多轮Agent审稿
-- [x] 主实验及稳定性结果冻结
-- [x] KG语义/证据审计
-- [x] 抽汽拓扑过度表述修正（Ch3 v8）
-- [x] 第二至第五章核心论文图接入
-- [x] 统一学位论文版式
-- [x] 参考文献置于全文结尾
-- [ ] 全量正文 `\\cite{}`—BibTeX key核验
-- [ ] BibTeX标题/作者/年份/DOI或报告号最终核验
-- [ ] `U+B→Y`、状态残差及缩写等少量术语清理
-- [ ] 完整XeLaTeX/BibTeX编译并清除undefined引用
-- [ ] PDF级浮动图表、分页、孤行/寡行检查
-- [ ] 汽轮机/ML/KG/统计/写作/杨昊东母版最终盲审
-- [ ] 最终可提交PDF交付
-
-详细断点见 `paper_rewriting_output/FINALIZATION_CHECKLIST.md`。
-
----
-
-## 9. 单一事实来源优先级
-
-若旧草稿、聊天记录或历史实验与当前口径冲突：
+构建过程只允许：
 
 ```text
-main.tex + final wrappers
+必要的术语/转义规范化
+→ SVG转换为PDF
+→ XeLaTeX/BibTeX完整构建
+→ undefined citation/reference检查
+→ 上传main.pdf + main.log
+```
+
+不要再次用旧的 `apply_final_figures.py` 对final wrapper已经控制的章节重复插图。
+
+---
+
+## 10. 最终交付前唯一剩余任务
+
+- [x] 第一至第六章正文
+- [x] 中文摘要 / English Abstract
+- [x] 总结与展望
+- [x] 杨昊东式章节逻辑与可见版式
+- [x] 主实验冻结
+- [x] KG证据/拓扑审计
+- [x] 引用/BibTeX核验
+- [x] undefined citation/reference清零
+- [x] 主图全部进入PDF
+- [x] 一轮完整49页逐页视觉审稿
+- [x] Blocking/Major清零
+- [x] 第二章图位逻辑改为稳定章节锚点
+- [ ] **从当前HEAD `f76a7249...` 重新构建最终PDF**
+- [ ] **只回归检查第二章图位/分页以及由其引起的后续页码变化**
+- [ ] 写入 `final_pdf_review_v2.md` 的最终run id、页数、SHA-256
+- [ ] 最终PDF交付
+
+用户本人仍需在学校正式提交前补：作者、导师、学校、专业、学号、答辩日期、学校封面/声明页等个人元数据；仓库不会擅自编造。
+
+---
+
+## 11. 单一事实来源优先级
+
+如果旧草稿、历史README、聊天记录或开发期实验与当前口径冲突：
+
+```text
+main@f76a7249... + final wrappers
 >
-Ch2 v4 / Ch3 v8 / Ch4 v7 / Ch5 v7
+paper_rewriting_output/HANDOFF_20260820.md
+>
+paper_rewriting_output/final_pdf_review_v1.md
+>
+Ch2 v4 / Ch3 v8 / Ch4 v7 / Ch5 v8 / Ch6 v2
 >
 experiments/levelC_v07/正式汇总
 >
 最新KG审计文件
->
-最新Agent Reviewer记录
 >
 历史草稿与开发期实验
 ```
