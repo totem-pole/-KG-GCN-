@@ -23,8 +23,8 @@ jobs:
           latexmk_use_xelatex: true
           extra_system_packages: "librsvg2-bin fonts-noto-cjk"
           pre_compile: |
-            # final wrappers control Ch2--Ch5 figure placement. Ch1 is patched by stable figure label.
             python3 scripts/patch_ch1_framework.py
+            python3 scripts/patch_fig2_7_legend.py
             sed -i 's/国家统计局，2026-06-04/国家统计局，2026-06-05/g' references/publication.bib
             sed -i 's/\$B+U\\rightarrow Y\$/\$U+B\\rightarrow Y\$/g' sections/02_gru_monitoring_v4.tex
             sed -i 's/压力#1/压力\\#1/g; s/温度#3/温度\\#3/g; s/处#1/处\\#1/g' sections/02_gru_monitoring_v4.tex
