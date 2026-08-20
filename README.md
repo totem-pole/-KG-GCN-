@@ -4,35 +4,35 @@
 
 > **当前状态（2026-08-20）：论文研究内容、主实验、KG审计、摘要/总结、参考文献、杨昊东式版式和主图均已完成。已有一版49页PDF完成完整XeLaTeX/BibTeX编译与逐页视觉审稿，Blocking=0、Major=0。**
 >
-> 该逐页审稿PDF生成后，`main` 又进行了两次仅针对第二章图位稳定性的收口修正：`9c960f0...`（7张图改为稳定章节锚点）和当前HEAD `f76a7249...`（修正第二章系统图标题锚点）。因此**最后只需从当前HEAD重新干净构建一次PDF，并回归检查第二章图位/分页，再刷新最终PDF SHA-256，即可正式交付。**
+> 该逐页审稿PDF生成后，论文源码又进行了两次仅针对第二章图位稳定性的收口修正：`9c960f0...`（7张图改为稳定章节锚点）和 `f76a7249...`（修正第二章系统图标题锚点）。因此**最后只需从当前main重新干净构建一次PDF，并回归检查第二章图位/分页，再刷新最终PDF SHA-256，即可正式交付。**
 
 ---
 
-## 1. 当前主分支断点
+## 1. 当前论文源码断点
 
-当前 `main` HEAD：
+论文源码最后一项实质性修改：
 
 ```text
 f76a7249e01451a7d383d1960a901554df45a909
 Fix Chapter-2 system-figure anchor to match v4 heading exactly
 ```
 
-最近两项正文收口：
+紧邻前一项：
 
 ```text
-9c960f0...  Place all seven final Chapter-2 figures by stable section anchors
-f76a724...  Fix Chapter-2 system-figure anchor to match v4 heading exactly
+9c960f0bfd6a7555b2d14506d1829f2aa622a4f0
+Place all seven final Chapter-2 figures by stable section anchors
 ```
 
-这些提交**没有改变实验数据、模型结果、KG证据、论文结论或章节内容，只改变第二章最终图的插入稳定性**。
+之后的README/交接文档提交只更新项目说明，**不改变论文PDF内容**。
 
-详细交接见：
+详细交接：
 
 ```text
 paper_rewriting_output/HANDOFF_20260820.md
 ```
 
-完整逐页审稿记录见：
+完整逐页审稿记录：
 
 ```text
 paper_rewriting_output/final_pdf_review_v1.md
@@ -200,7 +200,7 @@ Mask预训练 + frozen encoder   96.67% ± 0.27%
 → 本章小结
 ```
 
-当前可见版式不是通用模板估计，而是依据杨昊东原始DOCX的OOXML反向核对：
+当前可见版式依据杨昊东原始DOCX的OOXML反向核对：
 
 - A4；上/下约2.0 cm，左/右约2.5 cm；
 - 正文12 pt、小四、1.25倍行距、首行约2字符；
@@ -211,7 +211,7 @@ Mask预训练 + frozen encoder   96.67% ± 0.27%
 - 三线表；
 - GB/T 7714数字顺序编码参考文献。
 
-版式审计记录：
+版式审计：
 
 ```text
 paper_rewriting_output/yang_format_ooxml_audit_v1.md
@@ -234,19 +234,19 @@ Blocking：0
 Major：0
 ```
 
-该已审PDF记录：
+已审PDF基线：
 
 ```text
 GitHub Actions run: 32295100893
 SHA-256: 4676eee674a3d7205cbb942f08bb55b5542fbfc4eff43e127aab59fdb1f6d34b
 ```
 
-**注意：这份PDF对应的是当前第二章“稳定锚点”最终修正之前的审稿快照。** 当前main已经比它更新，因此它是“已完成逐页审稿的基准PDF”，而不是当前HEAD的最终交付hash。
+**注意：这份PDF对应的是第二章“稳定锚点”最终修正之前的审稿快照。** 当前main已经比它更新，因此它是“已完成逐页审稿的基准PDF”，不是当前main的最终交付hash。
 
-当前HEAD最终交付只需：
+最终交付只需：
 
 ```text
-1. 从 main@f76a7249... 干净构建
+1. 从当前main干净构建
 2. undefined citation/reference 必须保持0
 3. 对比上一份49页基准PDF
 4. 重点回归第二章7张图、图号、图位和分页
@@ -330,7 +330,7 @@ GitHub Actions快速构建：
 - [x] 一轮完整49页逐页视觉审稿
 - [x] Blocking/Major清零
 - [x] 第二章图位逻辑改为稳定章节锚点
-- [ ] **从当前HEAD `f76a7249...` 重新构建最终PDF**
+- [ ] **从当前main重新构建最终PDF**
 - [ ] **只回归检查第二章图位/分页以及由其引起的后续页码变化**
 - [ ] 写入 `final_pdf_review_v2.md` 的最终run id、页数、SHA-256
 - [ ] 最终PDF交付
@@ -344,7 +344,7 @@ GitHub Actions快速构建：
 如果旧草稿、历史README、聊天记录或开发期实验与当前口径冲突：
 
 ```text
-main@f76a7249... + final wrappers
+当前main + final wrappers
 >
 paper_rewriting_output/HANDOFF_20260820.md
 >
