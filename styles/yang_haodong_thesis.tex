@@ -24,8 +24,13 @@
 \geometry{a4paper,top=2.00cm,bottom=2.00cm,left=2.50cm,right=2.50cm,headheight=14pt,headsep=0.50cm,footskip=0.75cm}
 
 % ---------- 字体与正文 ----------
-% 原稿中文正文为宋体，英文/数字为Times New Roman。TeX环境采用TeX Gyre Termes作为Times New Roman的开源等距替代。
-\setmainfont{TeX Gyre Termes}
+% 原稿中文正文为宋体，英文/数字为Times New Roman。优先使用TeX Gyre Termes作为Times New Roman的开源等距替代；
+% CI/精简TeX环境若未注册该系统字体，则自动回退到Liberation Serif，再回退到DejaVu Serif，避免字体缺失阻断全文编译。
+\IfFontExistsTF{TeX Gyre Termes}{%
+  \setmainfont{TeX Gyre Termes}%
+}{%
+  \IfFontExistsTF{Liberation Serif}{\setmainfont{Liberation Serif}}{\setmainfont{DejaVu Serif}}%
+}
 \songti\zihao{-4}
 % 原稿“论文正文”：12 pt、1.25倍行距、首行约24 pt（2字符）。
 \setstretch{1.25}
