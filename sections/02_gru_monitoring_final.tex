@@ -1,12 +1,85 @@
-% Final Chapter 2 wrapper. Historical figure placeholders are materialized by scripts/apply_final_figures.py in the isolated build copy.
+% Final Chapter 2 wrapper.
+% The v4 text remains the audited semantic source.  This wrapper places the seven final
+% vector figures by stable section/subsection anchors, so compilation does not depend on
+% historical placeholder boxes or the old apply_final_figures.py script.
 \begingroup
 \setlength{\tabcolsep}{2.5pt}
+
+\let\ThesisChTwoOriginalSubsection\subsection
 \let\ThesisChTwoOriginalSubsubsection\subsubsection
+
+\renewcommand{\subsection}[1]{%
+  % Close Sec. 2.2 with the system-level process and device-model framework figures.
+  \ifstrequal{#1}{GRU动态状态监测模型}{%
+    \begin{figure}[htbp]
+      \centering
+      \includegraphics[width=0.98\textwidth]{figures/ch2/fig2_1_turbine_system_final.pdf}
+      \caption{燃煤机组汽轮机热力系统及设备级建模边界}
+      \label{fig:turbine_system_final}
+    \end{figure}
+    \begin{figure}[htbp]
+      \centering
+      \includegraphics[width=0.94\textwidth]{figures/ch2/fig2_2_device_model_framework_final.pdf}
+      \caption{汽轮机设备级健康状态监测建模框架}
+      \label{fig:device_model_framework_final}
+    \end{figure}
+  }{}%
+
+  % Close Sec. 2.4 with the actual VHP GRU architecture figure.
+  \ifstrequal{#1}{VHP状态监测算例}{%
+    \begin{figure}[htbp]
+      \centering
+      \includegraphics[width=0.90\textwidth]{figures/ch2/fig2_4_gru_architecture_final.pdf}
+      \caption{VHP健康状态监测GRU网络结构}
+      \label{fig:gru_architecture_final}
+    \end{figure}
+  }{}%
+  \ThesisChTwoOriginalSubsection{#1}%
+}
+
 \renewcommand{\subsubsection}[1]{%
+  % Close 2.5.1: VHP physical boundary and measurement configuration.
   \ifstrequal{#1}{数据集及实验设置}{%
+    \begin{figure}[htbp]
+      \centering
+      \includegraphics[width=0.96\textwidth]{figures/ch2/fig2_3_vhp_io.pdf}
+      \caption{VHP结构及状态监测测点配置}
+      \label{fig:vhp_io_final}
+    \end{figure}
     \par\noindent\textit{评价口径说明：}最终24个状态点由后续故障诊断的统一参数节点映射规则确定，不依据ANN、TCN、iTransformer-small或GRU在独立测试集上的预测精度进行筛选。网络训练阶段仍保留27个候选输出，CT132A、CT151A和CT152A仅不纳入本文统一的24点评价与诊断映射口径。\par
+  }{}%
+
+  % Close 2.5.3: use the real selection-loss trace.
+  \ifstrequal{#1}{总体状态监测性能}{%
+    \begin{figure}[htbp]
+      \centering
+      \includegraphics[width=0.84\textwidth]{figures/ch2/fig2_5_selection_loss.pdf}
+      \caption{GRU模型选择阶段训练与验证损失}
+      \label{fig:gru_loss_final}
+    \end{figure}
+  }{}%
+
+  % Close 2.5.4: compare the frozen 24-point macro R^2 results.
+  \ifstrequal{#1}{典型状态参数预测结果}{%
+    \begin{figure}[htbp]
+      \centering
+      \includegraphics[width=0.78\textwidth]{figures/ch2/fig2_6_macro_r2.pdf}
+      \caption{不同状态监测模型24点测试宏平均$R^2$比较}
+      \label{fig:macro_r2_final}
+    \end{figure}
+  }{}%
+
+  % Close 2.5.5: real DCS vs GRU prediction windows.
+  \ifstrequal{#1}{模型对比与状态监测结果讨论}{%
+    \begin{figure}[htbp]
+      \centering
+      \includegraphics[width=0.98\textwidth]{figures/ch2/fig2_7_prediction_panels.pdf}
+      \caption{VHP代表性状态参数的实测值与GRU预测值}
+      \label{fig:prediction_examples_final}
+    \end{figure}
   }{}%
   \ThesisChTwoOriginalSubsubsection{#1}%
 }
+
 \input{sections/02_gru_monitoring_v4}
 \endgroup
