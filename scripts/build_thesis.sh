@@ -27,9 +27,11 @@ mkdir -p "$BUILD_DIR"
 cp -a main.tex sections styles references figures scripts "$BUILD_DIR"/
 cd "$BUILD_DIR"
 
-printf '\n[0a/6] Materializing final figures and normalizing metadata...\n'
-python3 scripts/apply_final_figures.py
+printf '\n[0a/6] Applying final label-based figure patch and normalizations...\n'
+python3 scripts/patch_ch1_framework.py
 sed -i 's/国家统计局，2026-06-04/国家统计局，2026-06-05/g' references/publication.bib
+sed -i 's/\$B+U\\rightarrow Y\$/\$U+B\\rightarrow Y\$/g' sections/02_gru_monitoring_v4.tex
+sed -i 's/压力#1/压力\\#1/g; s/温度#3/温度\\#3/g; s/处#1/处\\#1/g' sections/02_gru_monitoring_v4.tex
 
 printf '\n[0b/6] Converting SVG figures to PDF...\n'
 while IFS= read -r -d '' f; do
@@ -41,6 +43,7 @@ while IFS= read -r -d '' f; do
   fi
 done < <(find figures -type f -name '*.svg' -print0)
 
+# Explicit .svg paths are rewritten only in the disposable build copy.
 find sections -type f -name '*.tex' -print0 | xargs -0 sed -i 's/\.svg}/.pdf}/g'
 
 printf '\n[1/6] XeLaTeX first pass...\n'
