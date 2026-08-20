@@ -1,5 +1,5 @@
 % Final Chapter 2 wrapper.
-% The v4 text remains the audited semantic source.  This wrapper places the seven final
+% The v4 text remains the audited semantic source. This wrapper places the seven final
 % vector figures by stable section/subsection anchors, so compilation does not depend on
 % historical placeholder boxes or the old apply_final_figures.py script.
 \begingroup
@@ -10,7 +10,8 @@
 
 \renewcommand{\subsection}[1]{%
   % Close Sec. 2.2 with the system-level process and device-model framework figures.
-  \ifstrequal{#1}{GRU动态状态监测模型}{%
+  % The v4 source contains an explicit space after "GRU" in this heading.
+  \ifstrequal{#1}{GRU 动态状态监测模型}{%
     \begin{figure}[htbp]
       \centering
       \includegraphics[width=0.98\textwidth]{figures/ch2/fig2_1_turbine_system_final.pdf}
