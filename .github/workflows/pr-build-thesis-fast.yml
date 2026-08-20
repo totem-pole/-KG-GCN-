@@ -23,8 +23,10 @@ jobs:
           latexmk_use_xelatex: true
           extra_system_packages: "librsvg2-bin fonts-noto-cjk"
           pre_compile: |
-            python3 scripts/apply_final_figures.py
+            # final wrappers already control figure placement; do not run the historical materialization script here.
             sed -i 's/国家统计局，2026-06-04/国家统计局，2026-06-05/g' references/publication.bib
+            sed -i 's/\$B+U\\rightarrow Y\$/\$U+B\\rightarrow Y\$/g' sections/02_gru_monitoring_v4.tex
+            sed -i 's/压力#1/压力\\#1/g; s/温度#3/温度\\#3/g; s/处#1/处\\#1/g' sections/02_gru_monitoring_v4.tex
             while IFS= read -r -d '' f; do rsvg-convert -f pdf -o "${f%.svg}.pdf" "$f"; done < <(find figures -type f -name '*.svg' -print0)
             find sections -type f -name '*.tex' -print0 | xargs -0 sed -i 's/\.svg}/.pdf}/g'
 
