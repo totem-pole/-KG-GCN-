@@ -1,0 +1,2 @@
+﻿model,seed,accuracy,macro_precision,macro_recall,macro_f1,best_val_macro_f1,pretrain_val_mse,pretrain_epoch,classifier_epoch
+KG-GCN,123,0.9892857142857143,0.9893838046011959,0.9892857142857143,0.9892912980683503,0.9802143610249296,0.33415162563323975,39,9

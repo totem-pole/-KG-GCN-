@@ -1,0 +1,23 @@
+{
+  "stage": "final",
+  "model": "dual_gap",
+  "seed": 123,
+  "hidden": 32,
+  "classifier_hidden": 96,
+  "node_embed_dim": 8,
+  "dropout": 0.05,
+  "label_fraction": 1.0,
+  "device": "cuda",
+  "nodes": 24,
+  "window": 60,
+  "labeled_train_samples": 1712,
+  "pretrain_epoch": 29,
+  "pretrain_val_mse": 0.33808842301368713,
+  "classifier_epoch": 60,
+  "val_macro_f1": 0.6509298359865672,
+  "val_loss": 0.9528524279594421,
+  "accuracy": 0.6571428571428571,
+  "macro_precision": 0.6693243732823275,
+  "macro_recall": 0.6571428571428573,
+  "macro_f1": 0.6534598158444987
+}

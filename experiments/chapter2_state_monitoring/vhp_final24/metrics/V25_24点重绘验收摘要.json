@@ -1,0 +1,17 @@
+{
+  "final_outputs": 24,
+  "removed": [
+    "SYG1_10MAA50CT132A",
+    "SYG1_10MAA50CT151A",
+    "SYG1_10MAA50CT152A"
+  ],
+  "tasks": 7,
+  "four_raw_png": 168,
+  "four_z_png": 168,
+  "gru_pinn_png": 168,
+  "total_png": 504,
+  "pdf": 21,
+  "retrained": false,
+  "normalization": "StandardScaler from full training target: z=(y-mean_train)/std_train, ddof=0",
+  "cpu_threads": 1
+}

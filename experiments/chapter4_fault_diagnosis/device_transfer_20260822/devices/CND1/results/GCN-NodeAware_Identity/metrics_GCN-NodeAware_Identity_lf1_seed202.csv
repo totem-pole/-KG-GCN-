@@ -1,0 +1,4 @@
+﻿stage,model,graph,seed,label_fraction,shuffle_labels,hidden,head_hidden,dropout,learning_rate,finetune_encoder,test,best_val_macro_f1,best_epoch,pretrain_val_mse,accuracy,macro_precision,macro_recall,macro_f1
+final,GCN-NodeAware,Identity,202,1,False,32,96,0.05,0.0015,False,iid,0.9826264961969979,15,0.03198018670082092,0.9722222222222222,0.9724290983093801,0.9722222222222222,0.9722624101591694
+final,GCN-NodeAware,Identity,202,1,False,32,96,0.05,0.0015,False,ood_profile,0.9826264961969979,15,0.03198018670082092,0.8489583333333334,0.8777798092209856,0.8489583333333333,0.8523388242619185
+final,GCN-NodeAware,Identity,202,1,False,32,96,0.05,0.0015,False,weak,0.9826264961969979,15,0.03198018670082092,0.328125,0.5711286280702357,0.328125,0.2547003450269255

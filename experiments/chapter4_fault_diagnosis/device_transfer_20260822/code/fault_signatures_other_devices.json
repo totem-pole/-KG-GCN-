@@ -1,0 +1,109 @@
+{
+  "H1": {
+    "faults": {
+      "F1_H1换热能力下降": {
+        "region": "高加汽侧-疏水-给水出口",
+        "weights": {
+          "SYG1_10LAD10CP101": 0.10,
+          "SYG1_10LAD10CL101-CAL": 0.05,
+          "SYG1_10LAD10CL102-CAL": 0.05,
+          "SYG1_10LAD10CL103-CAL": 0.05,
+          "SYG1_10LCH11CT101": 0.30,
+          "SYG1_10LAB61CT101": -1.00
+        }
+      },
+      "F2_H1汽侧泄漏": {
+        "region": "一级抽汽入口-高加汽侧",
+        "weights": {
+          "SYG1_10LAD10CP101": -1.00,
+          "SYG1_10LAD10CL101-CAL": -0.25,
+          "SYG1_10LAD10CL102-CAL": -0.30,
+          "SYG1_10LAD10CL103-CAL": -0.25,
+          "SYG1_10LCH11CT101": -0.45,
+          "SYG1_10LAB61CT101": -0.55
+        }
+      },
+      "F3_H1水位过高": {
+        "region": "高加壳侧水位-换热区",
+        "weights": {
+          "SYG1_10LAD10CP101": 0.15,
+          "SYG1_10LAD10CL101-CAL": 0.90,
+          "SYG1_10LAD10CL102-CAL": 1.00,
+          "SYG1_10LAD10CL103-CAL": 0.95,
+          "SYG1_10LCH11CT101": -0.25,
+          "SYG1_10LAB61CT101": -0.40
+        }
+      }
+    },
+    "edges": [
+      ["SYG1_10LAD10CP101", "SYG1_10LCH11CT101"],
+      ["SYG1_10LAD10CP101", "SYG1_10LAB61CT101"],
+      ["SYG1_10LAD10CP101", "SYG1_10LAD10CL101-CAL"],
+      ["SYG1_10LAD10CP101", "SYG1_10LAD10CL102-CAL"],
+      ["SYG1_10LAD10CP101", "SYG1_10LAD10CL103-CAL"],
+      ["SYG1_10LAD10CL101-CAL", "SYG1_10LAD10CL102-CAL"],
+      ["SYG1_10LAD10CL102-CAL", "SYG1_10LAD10CL103-CAL"],
+      ["SYG1_10LCH11CT101", "SYG1_10LAB61CT101"]
+    ]
+  },
+  "DEA": {
+    "faults": {
+      "F1_DEA进汽不足": {
+        "region": "除氧器进汽-压力温度",
+        "weights": {
+          "SYG1_10LAA10CP101": -0.85,
+          "SYG1_10LAA10CP102": -0.80,
+          "SYG1_10LAA10CT101": -0.75,
+          "SYG1_10LAA10CT102": -0.70,
+          "SYG1_10LAA10CL101": -0.10,
+          "SYG1_10LAA10CL102": -0.10,
+          "SYG1_10LAA10CL103": -0.10,
+          "SYG1_10LAA10CL101-SEL": -0.10,
+          "SYG1_10CBA00CBK00R107": 0.45
+        }
+      },
+      "F2_DEA水位过高": {
+        "region": "除氧器水箱-水位调节",
+        "weights": {
+          "SYG1_10LAA10CP101": 0.10,
+          "SYG1_10LAA10CP102": 0.10,
+          "SYG1_10LAA10CT101": -0.15,
+          "SYG1_10LAA10CT102": -0.15,
+          "SYG1_10LAA10CL101": 0.90,
+          "SYG1_10LAA10CL102": 0.95,
+          "SYG1_10LAA10CL103": 1.00,
+          "SYG1_10LAA10CL101-SEL": 0.95,
+          "SYG1_10CBA00CBK00R107": 0.20
+        }
+      },
+      "F3_DEA除氧效果恶化": {
+        "region": "除氧器汽水接触-溶解氧出口",
+        "weights": {
+          "SYG1_10LAA10CP101": -0.20,
+          "SYG1_10LAA10CP102": -0.20,
+          "SYG1_10LAA10CT101": -0.30,
+          "SYG1_10LAA10CT102": -0.30,
+          "SYG1_10LAA10CL101": 0.05,
+          "SYG1_10LAA10CL102": 0.05,
+          "SYG1_10LAA10CL103": 0.05,
+          "SYG1_10LAA10CL101-SEL": 0.05,
+          "SYG1_10CBA00CBK00R107": 1.00
+        }
+      }
+    },
+    "edges": [
+      ["SYG1_10LAA10CP101", "SYG1_10LAA10CP102"],
+      ["SYG1_10LAA10CT101", "SYG1_10LAA10CT102"],
+      ["SYG1_10LAA10CP101", "SYG1_10LAA10CT101"],
+      ["SYG1_10LAA10CP102", "SYG1_10LAA10CT102"],
+      ["SYG1_10LAA10CL101", "SYG1_10LAA10CL102"],
+      ["SYG1_10LAA10CL102", "SYG1_10LAA10CL103"],
+      ["SYG1_10LAA10CL101", "SYG1_10LAA10CL101-SEL"],
+      ["SYG1_10LAA10CL102", "SYG1_10LAA10CL101-SEL"],
+      ["SYG1_10LAA10CL103", "SYG1_10LAA10CL101-SEL"],
+      ["SYG1_10LAA10CT101", "SYG1_10CBA00CBK00R107"],
+      ["SYG1_10LAA10CT102", "SYG1_10CBA00CBK00R107"],
+      ["SYG1_10LAA10CP101", "SYG1_10LAA10CL101-SEL"]
+    ]
+  }
+}

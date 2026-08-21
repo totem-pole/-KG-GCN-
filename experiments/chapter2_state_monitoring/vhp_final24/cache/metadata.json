@@ -1,0 +1,484 @@
+﻿{
+  "task": "V24 fair 4-algorithm comparison: causal 16 inputs -> 27 observable VHP outputs",
+  "baseline_inputs": [
+    "SYG1_10LBA21CP101",
+    "SYG1_10LBA21CP102",
+    "SYG1_10LBA21CP103",
+    "SYG1_10LBA22CP101",
+    "SYG1_10LBA22CP102",
+    "SYG1_10LBA22CP103",
+    "SYG1_10LBA21CT101",
+    "SYG1_10LBA21CT102",
+    "SYG1_10LBA21CT103",
+    "SYG1_10LBA22CT101",
+    "SYG1_10LBA22CT102",
+    "SYG1_10LBA22CT103",
+    "SYG1_10FD1R-HFD1OM",
+    "SYG1_10FD2R-HFD2OM",
+    "SYG1_MW",
+    "SYG1_10MAA50FP101-XQ01-OUT"
+  ],
+  "baseline_input_metadata": {
+    "SYG1_10LBA21CP101": {
+      "name_cn": "A/B侧主蒸汽压力冗余点1",
+      "unit": "MPa",
+      "group": "主蒸汽边界"
+    },
+    "SYG1_10LBA21CP102": {
+      "name_cn": "A/B侧主蒸汽压力冗余点2",
+      "unit": "MPa",
+      "group": "主蒸汽边界"
+    },
+    "SYG1_10LBA21CP103": {
+      "name_cn": "A/B侧主蒸汽压力冗余点3",
+      "unit": "MPa",
+      "group": "主蒸汽边界"
+    },
+    "SYG1_10LBA22CP101": {
+      "name_cn": "A/B侧主蒸汽压力冗余点4",
+      "unit": "MPa",
+      "group": "主蒸汽边界"
+    },
+    "SYG1_10LBA22CP102": {
+      "name_cn": "A/B侧主蒸汽压力冗余点5",
+      "unit": "MPa",
+      "group": "主蒸汽边界"
+    },
+    "SYG1_10LBA22CP103": {
+      "name_cn": "A/B侧主蒸汽压力冗余点6",
+      "unit": "MPa",
+      "group": "主蒸汽边界"
+    },
+    "SYG1_10LBA21CT101": {
+      "name_cn": "A/B侧主蒸汽温度冗余点1",
+      "unit": "℃",
+      "group": "主蒸汽边界"
+    },
+    "SYG1_10LBA21CT102": {
+      "name_cn": "A/B侧主蒸汽温度冗余点2",
+      "unit": "℃",
+      "group": "主蒸汽边界"
+    },
+    "SYG1_10LBA21CT103": {
+      "name_cn": "A/B侧主蒸汽温度冗余点3",
+      "unit": "℃",
+      "group": "主蒸汽边界"
+    },
+    "SYG1_10LBA22CT101": {
+      "name_cn": "A/B侧主蒸汽温度冗余点4",
+      "unit": "℃",
+      "group": "主蒸汽边界"
+    },
+    "SYG1_10LBA22CT102": {
+      "name_cn": "A/B侧主蒸汽温度冗余点5",
+      "unit": "℃",
+      "group": "主蒸汽边界"
+    },
+    "SYG1_10LBA22CT103": {
+      "name_cn": "A/B侧主蒸汽温度冗余点6",
+      "unit": "℃",
+      "group": "主蒸汽边界"
+    },
+    "SYG1_10FD1R-HFD1OM": {
+      "name_cn": "VHP #1调节阀实际位置OM",
+      "unit": "%",
+      "group": "阀门边界"
+    },
+    "SYG1_10FD2R-HFD2OM": {
+      "name_cn": "VHP #2调节阀实际位置OM",
+      "unit": "%",
+      "group": "阀门边界"
+    },
+    "SYG1_MW": {
+      "name_cn": "机组有功负荷",
+      "unit": "MW",
+      "group": "整体工况"
+    },
+    "SYG1_10MAA50FP101-XQ01-OUT": {
+      "name_cn": "主蒸汽流量",
+      "unit": "t/h",
+      "group": "质量流量候选"
+    },
+    "SYG1_CNSR-PRS": {
+      "name_cn": "凝汽器压力",
+      "unit": "kPa",
+      "group": "整体工况候选"
+    }
+  },
+  "hpbp_candidates_not_in_baseline": [
+    "SYG1_10CBA00CXL04R101",
+    "SYG1_10CBA00CXL05R101",
+    "SYG1_10CBA00CXL06R101",
+    "SYG1_10CBA00CXL07R101",
+    "SYG1_10CBA00CXL08R101",
+    "SYG1_10CBA00CXL09R101",
+    "SYG1_10CBA00CXL10R101",
+    "SYG1_10CBA00CXL11R101",
+    "SYG1_10LBC31CP101",
+    "SYG1_10LBC32CP101",
+    "SYG1_10LBC33CP101",
+    "SYG1_10LBC34CP101",
+    "SYG1_10LBC31CT101",
+    "SYG1_10LBC32CT101",
+    "SYG1_10LBC33CT101",
+    "SYG1_10LBC34CT101"
+  ],
+  "targets": [
+    "SYG1_10MAA50CP101",
+    "SYG1_10MAA50CP102",
+    "SYG1_10MAA50CP103",
+    "SYG1_10MAA50CT121A",
+    "SYG1_10MAA50CT122A",
+    "SYG1_10MAA50CT123A",
+    "SYG1_10LBC01CP101",
+    "SYG1_10LBC02CP101",
+    "SYG1_10LBC01CT101",
+    "SYG1_10LBC02CT101",
+    "SYG1_10LBQ10CP101",
+    "SYG1_10LBQ10CT101A",
+    "SYG1_10LBQ10CT102",
+    "SYG1_10LBQ10CT103",
+    "SYG1_10LBQ10CT104",
+    "SYG1_10LBQ10CT105",
+    "SYG1_10LBQ10CP102",
+    "SYG1_10LBQ10CT106",
+    "SYG1_10LBC20CT101",
+    "SYG1_10LBC20CT103",
+    "SYG1_10LBC20CT104",
+    "SYG1_10MAA50CT111A",
+    "SYG1_10MAA50CT112A",
+    "SYG1_10MAA50CT131A",
+    "SYG1_10MAA50CT132A",
+    "SYG1_10MAA50CT151A",
+    "SYG1_10MAA50CT152A"
+  ],
+  "target_metadata": {
+    "SYG1_10MAA50CP101": {
+      "name_cn": "超高压缸叶片级压力#1",
+      "unit": "MPa",
+      "group": "Y1_VHP本体"
+    },
+    "SYG1_10MAA50CP102": {
+      "name_cn": "超高压缸叶片级压力#2",
+      "unit": "MPa",
+      "group": "Y1_VHP本体"
+    },
+    "SYG1_10MAA50CP103": {
+      "name_cn": "超高压缸叶片级压力#3",
+      "unit": "MPa",
+      "group": "Y1_VHP本体"
+    },
+    "SYG1_10MAA50CT121A": {
+      "name_cn": "超高压排汽蒸汽温度#1",
+      "unit": "℃",
+      "group": "Y1_VHP本体"
+    },
+    "SYG1_10MAA50CT122A": {
+      "name_cn": "超高压排汽蒸汽温度#2",
+      "unit": "℃",
+      "group": "Y1_VHP本体"
+    },
+    "SYG1_10MAA50CT123A": {
+      "name_cn": "超高压排汽蒸汽温度#3",
+      "unit": "℃",
+      "group": "Y1_VHP本体"
+    },
+    "SYG1_10LBC01CP101": {
+      "name_cn": "超高压缸A侧排汽垂直管压力",
+      "unit": "MPa",
+      "group": "Y1_VHP本体"
+    },
+    "SYG1_10LBC02CP101": {
+      "name_cn": "超高压缸B侧排汽垂直管压力",
+      "unit": "MPa",
+      "group": "Y1_VHP本体"
+    },
+    "SYG1_10LBC01CT101": {
+      "name_cn": "超高压缸A侧排汽垂直管温度",
+      "unit": "℃",
+      "group": "Y1_VHP本体"
+    },
+    "SYG1_10LBC02CT101": {
+      "name_cn": "超高压缸B侧排汽垂直管温度",
+      "unit": "℃",
+      "group": "Y1_VHP本体"
+    },
+    "SYG1_10LBQ10CP101": {
+      "name_cn": "一级抽汽口压力",
+      "unit": "MPa",
+      "group": "Y2_一级抽汽接口"
+    },
+    "SYG1_10LBQ10CT101A": {
+      "name_cn": "一级抽汽口温度",
+      "unit": "℃",
+      "group": "Y2_一级抽汽接口"
+    },
+    "SYG1_10LBQ10CT102": {
+      "name_cn": "一级抽汽逆止门前水平管管顶温度",
+      "unit": "℃",
+      "group": "Y2_一级抽汽接口"
+    },
+    "SYG1_10LBQ10CT103": {
+      "name_cn": "一级抽汽逆止门前水平管管底温度",
+      "unit": "℃",
+      "group": "Y2_一级抽汽接口"
+    },
+    "SYG1_10LBQ10CT104": {
+      "name_cn": "一级抽汽逆止门后水平管管顶温度",
+      "unit": "℃",
+      "group": "Y2_一级抽汽接口"
+    },
+    "SYG1_10LBQ10CT105": {
+      "name_cn": "一级抽汽逆止门后水平管管底温度",
+      "unit": "℃",
+      "group": "Y2_一级抽汽接口"
+    },
+    "SYG1_10LBQ10CP102": {
+      "name_cn": "1号高加入口抽汽压力",
+      "unit": "MPa",
+      "group": "Y2_一级抽汽接口"
+    },
+    "SYG1_10LBQ10CT106": {
+      "name_cn": "1号高加入口抽汽温度",
+      "unit": "℃",
+      "group": "Y2_一级抽汽接口"
+    },
+    "SYG1_10LBC20CT101": {
+      "name_cn": "一次低温再热逆止阀前母管管底温度",
+      "unit": "℃",
+      "group": "Y3_VHP至RH1接口"
+    },
+    "SYG1_10LBC20CT103": {
+      "name_cn": "一次低温再热逆止阀后水平管管顶温度",
+      "unit": "℃",
+      "group": "Y3_VHP至RH1接口"
+    },
+    "SYG1_10LBC20CT104": {
+      "name_cn": "一次低温再热逆止阀后水平管管底温度",
+      "unit": "℃",
+      "group": "Y3_VHP至RH1接口"
+    },
+    "SYG1_10MAA50CT111A": {
+      "name_cn": "超高压内缸壁温90%处#1",
+      "unit": "℃",
+      "group": "Y4_VHP缸体与内部蒸汽"
+    },
+    "SYG1_10MAA50CT112A": {
+      "name_cn": "超高压内缸壁温90%处#2",
+      "unit": "℃",
+      "group": "Y4_VHP缸体与内部蒸汽"
+    },
+    "SYG1_10MAA50CT131A": {
+      "name_cn": "超高压缸蒸汽温度100%",
+      "unit": "℃",
+      "group": "Y4_VHP缸体与内部蒸汽"
+    },
+    "SYG1_10MAA50CT132A": {
+      "name_cn": "超高压缸蒸汽温度50%",
+      "unit": "℃",
+      "group": "Y4_VHP缸体与内部蒸汽"
+    },
+    "SYG1_10MAA50CT151A": {
+      "name_cn": "超高压缸中部上半汽缸温度50%",
+      "unit": "℃",
+      "group": "Y4_VHP缸体与内部蒸汽"
+    },
+    "SYG1_10MAA50CT152A": {
+      "name_cn": "超高压缸中部下半汽缸温度50%",
+      "unit": "℃",
+      "group": "Y4_VHP缸体与内部蒸汽"
+    }
+  },
+  "permanently_removed_outputs": {
+    "SYG1_10LBC41CT101A": "超高排通风阀后温度：受环境/停运热浸影响且导师确认不作为核心输出",
+    "SYG1_10LBQ10CT108": "一级抽汽电动门后疏水温度：必要性弱且导师确认剔除"
+  },
+  "all_null_20260812": [
+    "SYG1_10CBA00DQR101",
+    "SYG1_10CBA00DQR102",
+    "SYG1_10CBA00DQR103",
+    "SYG1_10FD1R-HFD1",
+    "SYG1_10FD2R-HFD2",
+    "SYG1_10LBC20CP101",
+    "SYG1_10LBC20CT105",
+    "SYG1_10LBQ10AA001XB01",
+    "SYG1_10LBQ10AA001XB02",
+    "SYG1_10MAA11CG151",
+    "SYG1_10MAA21CG051",
+    "SYG1_10MAA22FG151-XQ01"
+  ],
+  "speed_model_input": false,
+  "speed_filter_only": true,
+  "raw_rows": 1578241,
+  "operational_rows": 1020780,
+  "source_map": {
+    "SYG1_DEH-SPEED": "base_20260730",
+    "SYG1_10LBA21CP101": "base_20260730",
+    "SYG1_10LBA21CP102": "base_20260730",
+    "SYG1_10LBA21CP103": "base_20260730",
+    "SYG1_10LBA22CP101": "base_20260730",
+    "SYG1_10LBA22CP102": "base_20260730",
+    "SYG1_10LBA22CP103": "base_20260730",
+    "SYG1_10LBA21CT101": "base_20260730",
+    "SYG1_10LBA21CT102": "base_20260730",
+    "SYG1_10LBA21CT103": "base_20260730",
+    "SYG1_10LBA22CT101": "base_20260730",
+    "SYG1_10LBA22CT102": "base_20260730",
+    "SYG1_10LBA22CT103": "base_20260730",
+    "SYG1_10FD1R-HFD1OM": "supplement_20260812",
+    "SYG1_10FD2R-HFD2OM": "supplement_20260812",
+    "SYG1_MW": "supplement_20260812",
+    "SYG1_10MAA50FP101-XQ01-OUT": "rh1_20260802",
+    "SYG1_CNSR-PRS": "base_20260730",
+    "SYG1_10CBA00CXL04R101": "base_20260730",
+    "SYG1_10CBA00CXL05R101": "base_20260730",
+    "SYG1_10CBA00CXL06R101": "base_20260730",
+    "SYG1_10CBA00CXL07R101": "base_20260730",
+    "SYG1_10MAA50CP101": "supplement_20260808",
+    "SYG1_10MAA50CP102": "supplement_20260808",
+    "SYG1_10MAA50CP103": "supplement_20260808",
+    "SYG1_10MAA50CT121A": "supplement_20260808",
+    "SYG1_10MAA50CT122A": "supplement_20260808",
+    "SYG1_10MAA50CT123A": "supplement_20260808",
+    "SYG1_10LBC01CP101": "supplement_20260812",
+    "SYG1_10LBC02CP101": "supplement_20260812",
+    "SYG1_10LBC01CT101": "base_20260730",
+    "SYG1_10LBC02CT101": "base_20260730",
+    "SYG1_10LBQ10CP101": "supplement_20260808",
+    "SYG1_10LBQ10CT101A": "supplement_20260808",
+    "SYG1_10LBQ10CT102": "base_20260730",
+    "SYG1_10LBQ10CT103": "base_20260730",
+    "SYG1_10LBQ10CT104": "base_20260730",
+    "SYG1_10LBQ10CT105": "base_20260730",
+    "SYG1_10LBQ10CP102": "base_20260730",
+    "SYG1_10LBQ10CT106": "base_20260730",
+    "SYG1_10LBC20CT101": "supplement_20260812",
+    "SYG1_10LBC20CT103": "supplement_20260812",
+    "SYG1_10LBC20CT104": "supplement_20260812",
+    "SYG1_10MAA50CT111A": "supplement_20260814",
+    "SYG1_10MAA50CT112A": "supplement_20260814",
+    "SYG1_10MAA50CT131A": "supplement_20260814",
+    "SYG1_10MAA50CT132A": "supplement_20260814",
+    "SYG1_10MAA50CT151A": "supplement_20260814",
+    "SYG1_10MAA50CT152A": "supplement_20260814",
+    "SYG1_10MAL41CT101A": "supplement_20260814",
+    "SYG1_10MAL67CT101A": "supplement_20260814",
+    "SYG1_10MAA50CT113A": "supplement_20260814",
+    "SYG1_10MAL41CG051B": "supplement_20260814",
+    "SYG1_10MAL41CG051C": "supplement_20260814",
+    "SYG1_10MAL67CG051B": "supplement_20260814",
+    "SYG1_10MAL67CG051C": "supplement_20260814"
+  },
+  "protocols": {
+    "month_expanded_2024": {
+      "protocol": "month_expanded_2024",
+      "train_calendar_start": "2024-05-01",
+      "train_calendar_end_exclusive": "2024-06-01",
+      "test_calendar_start": "2024-06-01",
+      "test_calendar_end_exclusive": "2024-07-01",
+      "train_rows": "43911",
+      "test_rows": "42710",
+      "train_first_valid": "2024-05-01 00:00:00",
+      "train_last_valid": "2024-05-31 23:59:00",
+      "test_first_valid": "2024-06-01 00:00:00",
+      "test_last_valid": "2024-06-30 23:59:00",
+      "train_load_min": "280.986",
+      "train_load_max": "1029.905",
+      "test_load_min": "285.91",
+      "test_load_max": "1009.141"
+    },
+    "month_expanded_2025": {
+      "protocol": "month_expanded_2025",
+      "train_calendar_start": "2025-08-01",
+      "train_calendar_end_exclusive": "2025-09-01",
+      "test_calendar_start": "2025-09-01",
+      "test_calendar_end_exclusive": "2025-10-01",
+      "train_rows": "43521",
+      "test_rows": "40603",
+      "train_first_valid": "2025-08-01 00:00:00",
+      "train_last_valid": "2025-08-31 23:59:00",
+      "test_first_valid": "2025-09-01 00:00:00",
+      "test_last_valid": "2025-09-30 23:59:00",
+      "train_load_min": "289.22806",
+      "train_load_max": "1041.1439",
+      "test_load_min": "289.3351",
+      "test_load_max": "1043.3917"
+    },
+    "10d300d_expanded_2024": {
+      "protocol": "10d300d_expanded_2024",
+      "train_calendar_start": "2024-05-01",
+      "train_calendar_end_exclusive": "2024-05-11",
+      "test_calendar_start": "2024-05-11",
+      "test_calendar_end_exclusive": "2025-03-07",
+      "train_rows": "14400",
+      "test_rows": "384999",
+      "train_first_valid": "2024-05-01 00:00:00",
+      "train_last_valid": "2024-05-10 23:59:00",
+      "test_first_valid": "2024-05-11 00:00:00",
+      "test_last_valid": "2025-03-06 23:59:00",
+      "train_load_min": "283.983",
+      "train_load_max": "1022.52",
+      "test_load_min": "267.928",
+      "test_load_max": "1044.462"
+    },
+    "10d200d_expanded_2025": {
+      "protocol": "10d200d_expanded_2025",
+      "train_calendar_start": "2025-08-01",
+      "train_calendar_end_exclusive": "2025-08-11",
+      "test_calendar_start": "2025-08-11",
+      "test_calendar_end_exclusive": "2026-02-27",
+      "train_rows": "14023",
+      "test_rows": "259566",
+      "train_first_valid": "2025-08-01 00:00:00",
+      "train_last_valid": "2025-08-10 23:59:00",
+      "test_first_valid": "2025-08-11 00:00:00",
+      "test_last_valid": "2026-02-26 23:59:00",
+      "train_load_min": "292.22504",
+      "train_load_max": "1017.16833",
+      "test_load_min": "280.13016",
+      "test_load_max": "1044.462"
+    }
+  },
+  "new_valid_outputs": [
+    "SYG1_10MAA50CT111A",
+    "SYG1_10MAA50CT112A",
+    "SYG1_10MAA50CT131A",
+    "SYG1_10MAA50CT132A",
+    "SYG1_10MAA50CT151A",
+    "SYG1_10MAA50CT152A",
+    "SYG1_10MAL41CT101A",
+    "SYG1_10MAL67CT101A"
+  ],
+  "new_all_null_outputs": [
+    "SYG1_10MAA50CT113A",
+    "SYG1_10MAL41CG051B",
+    "SYG1_10MAL41CG051C",
+    "SYG1_10MAL67CG051B",
+    "SYG1_10MAL67CG051C"
+  ],
+  "all_outputs_direct_predictions": true,
+  "new_internal_states_are_inputs": false,
+  "normal_throughflow_filter": "HPBP A-D feedback >0.5% plus symmetric 60-min context excluded",
+  "ablation": {
+    "removed_input": "SYG1_CNSR-PRS",
+    "reason": "Condenser pressure is not a direct VHP/RH1 boundary. The 2024 long-horizon audit showed a seasonal shortcut: high-pressure test peaks occurred at condenser pressure about 3.5 training standard deviations above the training peak-state mean.",
+    "selection_status": "mechanism-motivated ablation; evaluate all protocols"
+  },
+  "v24_removed_unobservable_outputs": {
+    "SYG1_10MAL41CT101A": "#1抽汽逆止门前疏水阀后温度：阀未动作时无稳定可观测通流边界",
+    "SYG1_10MAL67CT101A": "超高压冷再热逆止阀前疏水阀后温度：阀未动作时无稳定可观测通流边界"
+  },
+  "fair_comparison": {
+    "algorithms": [
+      "ANN",
+      "GRU-RNN",
+      "TCN",
+      "iTransformer-small"
+    ],
+    "same_inputs": true,
+    "same_targets": true,
+    "same_train_test_rows": true,
+    "target_history_input": false,
+    "condenser_backpressure_input": false
+  }
+}

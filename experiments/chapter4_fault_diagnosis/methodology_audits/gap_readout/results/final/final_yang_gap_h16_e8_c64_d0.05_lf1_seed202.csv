@@ -1,0 +1,2 @@
+﻿stage,model,seed,hidden,classifier_hidden,node_embed_dim,dropout,label_fraction,device,nodes,window,labeled_train_samples,pretrain_epoch,pretrain_val_mse,classifier_epoch,val_macro_f1,val_loss,accuracy,macro_precision,macro_recall,macro_f1
+final,yang_gap,202,16,64,8,0.05,1.0,cuda,24,60,1712,39,0.41772326827049255,80,0.5012553394607928,1.1148184537887573,0.5410714285714285,0.5383500489987831,0.5410714285714285,0.5274617979154353

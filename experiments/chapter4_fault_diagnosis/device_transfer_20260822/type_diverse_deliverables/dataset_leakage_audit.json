@@ -1,0 +1,70 @@
+{
+  "BFPT": {
+    "nodes": 7,
+    "samples": {
+      "train": 1724,
+      "val": 576,
+      "test": 576
+    },
+    "class_counts": {
+      "train": [
+        431,
+        431,
+        431,
+        431
+      ],
+      "val": [
+        144,
+        144,
+        144,
+        144
+      ],
+      "test": [
+        144,
+        144,
+        144,
+        144
+      ]
+    },
+    "date_overlap_train_val": [],
+    "date_overlap_train_test": [],
+    "date_overlap_val_test": [],
+    "exact_duplicate_train_val": 0,
+    "exact_duplicate_train_test": 0,
+    "exact_duplicate_val_test": 0
+  },
+  "CND1": {
+    "nodes": 14,
+    "samples": {
+      "train": 1724,
+      "val": 576,
+      "test": 576
+    },
+    "class_counts": {
+      "train": [
+        431,
+        431,
+        431,
+        431
+      ],
+      "val": [
+        144,
+        144,
+        144,
+        144
+      ],
+      "test": [
+        144,
+        144,
+        144,
+        144
+      ]
+    },
+    "date_overlap_train_val": [],
+    "date_overlap_train_test": [],
+    "date_overlap_val_test": [],
+    "exact_duplicate_train_val": 0,
+    "exact_duplicate_train_test": 0,
+    "exact_duplicate_val_test": 0
+  }
+}

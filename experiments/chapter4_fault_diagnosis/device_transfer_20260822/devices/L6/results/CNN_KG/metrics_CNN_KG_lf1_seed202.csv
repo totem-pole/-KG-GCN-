@@ -1,0 +1,4 @@
+﻿stage,model,graph,seed,label_fraction,shuffle_labels,hidden,head_hidden,dropout,learning_rate,finetune_encoder,test,best_val_macro_f1,best_epoch,pretrain_val_mse,accuracy,macro_precision,macro_recall,macro_f1
+final,CNN,KG,202,1,False,32,96,0.05,0.0015,False,iid,0.9843986733740271,9,,0.9618055555555556,0.9621825396825396,0.9618055555555556,0.9618348340682344
+final,CNN,KG,202,1,False,32,96,0.05,0.0015,False,ood_profile,0.9843986733740271,9,,0.9357638888888888,0.9393374239652046,0.935763888888889,0.9361560172523287
+final,CNN,KG,202,1,False,32,96,0.05,0.0015,False,weak,0.9843986733740271,9,,0.3836805555555556,0.668812550967455,0.3836805555555555,0.34657006693704695

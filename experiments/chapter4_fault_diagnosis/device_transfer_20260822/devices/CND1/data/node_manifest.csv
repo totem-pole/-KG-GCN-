@@ -1,0 +1,15 @@
+﻿tag,name_cn,unit
+SYG1_10MAG10CP101,凝汽器 1 压力 1,kPa
+SYG1_10MAG10CP105,凝汽器 1 压力 2,kPa
+SYG1_10MAG10CP106,凝汽器 1 压力 3,kPa
+SYG1_10MAG10CP107,凝汽器 1 压力 4,kPa
+SYG1_10MAG10CP108,凝汽器 1 压力 5,kPa
+SYG1_10MAG10CP109,凝汽器 1 压力 6,kPa
+SYG1_10MAG10CT101,凝汽器 1 温度 1,℃
+SYG1_10MAG10CT102,凝汽器 1 温度 2,℃
+SYG1_10MAG10CT103,凝汽器 1 温度 3,℃
+SYG1_10MAG10CT104,#1 机凝汽器 I（低压）壳侧温度,℃
+SYG1_10MAG10CL104,#1 机凝汽器 I（低压）热井液位 4,mm
+SYG1_10MAG10CL105,#1 机凝汽器 I（低压）热井液位 5,mm
+SYG1_10MAG10CL106,#1 机凝汽器 I（低压）热井液位 6,mm
+SYG1_10MAG10CL104-SEL,#1 机凝汽器 I（低压）热井液位三选 - SEL,-

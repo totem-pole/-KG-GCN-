@@ -1,0 +1,23 @@
+{
+  "stage": "final",
+  "model": "yang_gap",
+  "seed": 101,
+  "hidden": 16,
+  "classifier_hidden": 64,
+  "node_embed_dim": 8,
+  "dropout": 0.05,
+  "label_fraction": 1.0,
+  "device": "cuda",
+  "nodes": 24,
+  "window": 60,
+  "labeled_train_samples": 1712,
+  "pretrain_epoch": 39,
+  "pretrain_val_mse": 0.4186435639858246,
+  "classifier_epoch": 9,
+  "val_macro_f1": 0.41216599447273894,
+  "val_loss": 1.2235215902328491,
+  "accuracy": 0.48928571428571427,
+  "macro_precision": 0.48308725717360185,
+  "macro_recall": 0.4892857142857143,
+  "macro_f1": 0.4774501472320638
+}

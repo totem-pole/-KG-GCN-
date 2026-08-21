@@ -1,0 +1,7 @@
+﻿tag,name_cn,unit
+SYG1_10LAD10CP101,#1 高压加热器压力,MPa
+SYG1_10LAD10CL101-CAL,#1 高压加热器水位 1,mm
+SYG1_10LAD10CL102-CAL,#1 高压加热器水位 2,mm
+SYG1_10LAD10CL103-CAL,#1 高压加热器水位 3,mm
+SYG1_10LCH11CT101,#1 高加汽侧疏水温度,℃
+SYG1_10LAB61CT101,#1 高压给水加热器出口温度,℃
